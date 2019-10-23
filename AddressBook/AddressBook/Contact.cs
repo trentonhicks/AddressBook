@@ -29,5 +29,8 @@ namespace AddressBook
             get => _lastName != "" ? _lastName : "NULL";
             set => _lastName = value;
         }
+
+        // Addresses
+        public List<Address> Addresses { get; set; }
     }
 }
