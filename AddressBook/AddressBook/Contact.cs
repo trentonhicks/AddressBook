@@ -31,6 +31,6 @@ namespace AddressBook
         }
 
         // Addresses
-        public List<Address> Addresses { get; set; }
+        public List<Address> Addresses { get; set; } = new List<Address>();
     }
 }
