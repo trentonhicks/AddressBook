@@ -11,7 +11,10 @@ namespace AddressBook
         // SQL connection string
         private static SqlConnection _connection = new SqlConnection(@"Data Source=.; Initial Catalog=AddressBook2.0; Integrated Security=SSPI;");
 
-        // Get Contacts
+        /// <summary>
+        /// Gets all the contacts
+        /// </summary>
+        /// <returns></returns>
         public List<Contact> GetContacts()
         {
             // Store db contacts to list
@@ -55,6 +58,25 @@ namespace AddressBook
             {
                 Console.WriteLine($"{contact.ID} {contact.FirstName} {contact.LastName}");
             }
+        }
+
+        /// <summary>
+        /// Checks if contact exists in the database
+        /// </summary>
+        /// <param name="ID"></param>
+        public bool ContactExists(int ID)
+        {
+            var contacts = GetContacts();
+
+            // Check for contact in the database by comparing with ID
+            foreach(var contact in contacts)
+            {
+                if(contact.ID == ID)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
     }
