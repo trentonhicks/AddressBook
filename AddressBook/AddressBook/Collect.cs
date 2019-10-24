@@ -7,10 +7,12 @@ namespace AddressBook
     class Collect
     {
         /// <summary>
-        /// Passes in information from the user and re
+        /// Passes in information from the user and strores it.
         /// </summary>
         /// <param name="fieldName"></param>
         /// <returns></returns>
+        /// 
+        
         public string CollectField(string fieldName, string previousValue, bool required)
         {
             Console.Clear();
@@ -36,7 +38,7 @@ namespace AddressBook
                     {
                         break;
                     }
-                    
+
                 }
             }
             else
@@ -44,7 +46,7 @@ namespace AddressBook
                 //Collect info for user if not required.//
                 Console.Write($"{fieldName}: ");
                 userInput = Console.ReadLine();
-                if(userInput == "0")
+                if (userInput == "0")
                 {
                     return previousValue;
                 }
@@ -52,17 +54,20 @@ namespace AddressBook
             return userInput;
         }
 
+        //Collects string and converts it to an int for phone number.//
         public string CollectInt(string previousValue)
         {
+            
             var field = Console.ReadLine();
-            if(field == "0")
+            //Checks if input is 0. if 0 it goes back.//
+            if (field == "0")
             {
                 return previousValue;
             }
             int a;
-           
+            //Converts field to int using TryParse.//
             bool isNumber = int.TryParse(field, out a); ;
-            
+            //If what the user inputs is an int it retuns a string. Because Everything in SQL is a string.//
             if (isNumber)
             {
                 return field;
@@ -72,8 +77,22 @@ namespace AddressBook
                 Console.WriteLine("wrong input");
             }
             return field;
+
+
         }
 
-        
+        //Collects int and only int for ID//
+        public int CollectID(string msg, int userInput)
+        {
+
+            Console.Write($"{msg} Enter Id. Int only: ");
+            //If an int return user input//
+            if (true)
+            {
+                return userInput;
+            }
+
+        }
+
     }
 }
