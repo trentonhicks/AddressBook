@@ -1,7 +1,7 @@
 USE [master]
 GO
 
-/****** Object:  Database [Addressbook2.0]    Script Date: 10/23/2019 10:00:05 AM ******/
+/****** Object:  Database [Addressbook2.0]    Script Date: 10/24/2019 12:24:37 AM ******/
 CREATE DATABASE [Addressbook2.0]
  CONTAINMENT = NONE
  ON  PRIMARY 
