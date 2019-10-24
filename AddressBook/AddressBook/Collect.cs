@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-​
+
 namespace AddressBook
 {
     class Collect
@@ -11,7 +11,7 @@ namespace AddressBook
         /// </summary>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        public string CollectField(string fieldName, bool required)
+        public string CollectField(string fieldName, string previousValue, bool required)
         {
             Console.Clear();
             var userInput = "";
@@ -20,9 +20,14 @@ namespace AddressBook
                 while (true)
                 {
                     //Check to see if input is added to the required field.//
-                    Console.Write($"{fieldName}: ");
+                    Console.Write($"Press 0 to go back\n\n {fieldName}: ");
                     userInput = Console.ReadLine();
-                    if (userInput == "")
+                    if (userInput == "0")
+                    {
+
+                        return previousValue;
+                    }
+                    else if (userInput == "")
                     {
                         Console.WriteLine($"{fieldName} is required");
                     }
@@ -31,7 +36,7 @@ namespace AddressBook
                     {
                         break;
                     }
-​
+                    
                 }
             }
             else
@@ -39,51 +44,36 @@ namespace AddressBook
                 //Collect info for user if not required.//
                 Console.Write($"{fieldName}: ");
                 userInput = Console.ReadLine();
+                if(userInput == "0")
+                {
+                    return previousValue;
+                }
             }
             return userInput;
         }
-​
-        public Address CollectAddress()
-        {
-            var address = new Address();
-            address.StreetName = CollectField(fieldName: "Street Name", required: false);
-            address.City = CollectField(fieldName: "City", required: false);
-            address.State = CollectField(fieldName: "State", required: false);
-            address.ZipCode = CollectField(fieldName: "Zip", required: false);
-            address.Type = CollectField(fieldName: "Type", required: false);
-            return address;
-        }
 
-        public int CollectInt(int fieldNumber, string value)
+        public string CollectInt(string previousValue)
         {
-            for (var i = 0; i < value.Length; i++)
-                if (value == null)
-                {
-                    return 0;
-​
+            var field = Console.ReadLine();
+            if(field == "0")
+            {
+                return previousValue;
             }
+            int a;
+           
+            bool isNumber = int.TryParse(field, out a); ;
+            
+            if (isNumber)
+            {
+                return field;
+            }
+            else
+            {
+                Console.WriteLine("wrong input");
+            }
+            return field;
+        }
 
-                else
-                {
-                    int valueInt = value[i];
-                }
-            return value;
-        }
-        public int CollectPhoneNumber()
-        {
-            var phonenumber = CollectInt(fieldNumber: "PhoneNumber" : false);
-            var type = CollectInt(required: false);
-            return phonenumber;
-
-        }
-​
-        public string CollectEmail()
-        {
-            var email = CollectField(fieldName: "Email", required: false);
-            var type = CollectField(fieldName: "Type", required: false);
-            return email;
-        }
-​
         
     }
 }
