@@ -32,5 +32,7 @@ namespace AddressBook
 
         // Addresses
         public List<Address> Addresses { get; set; } = new List<Address>();
+        public List<Email> Emails { get; set; } = new List<Email>();
+        public List<PhoneNumber> PhoneNumbers { get; set; } = new List<PhoneNumber>();
     }
 }
