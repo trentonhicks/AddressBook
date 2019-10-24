@@ -6,6 +6,15 @@ namespace AddressBook
 {
     class PhoneNumber
     {
+        // ID
+        private int _id;
+        public int ID
+        {
+            get => _id != 0 ? _id : -1;
+            set => _id = value;
+        }
+
+        // Number
         private string _number;
         public string Number
         {
@@ -13,6 +22,7 @@ namespace AddressBook
             set => _number = value;
         }
 
+        // Type
         private string _type;
         public string Type
         {

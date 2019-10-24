@@ -115,7 +115,7 @@ namespace AddressBook
                     Menu(collect, sql);
                     break;
                 case "1":
-                    Console.WriteLine("View/Edit");
+                    ViewEdit(collect, sql);
                     break;
                 case "2":
                     Console.WriteLine("Delete");
@@ -123,8 +123,9 @@ namespace AddressBook
             }
 
         }
-        public static void ViewEdit(SQL sql)
+        public static void ViewEdit(Collect collect, SQL sql)
         {
+            sql.DisplayContactsList();
 
             Console.Write("" +
                 "0.=>Return to previous menu" +

@@ -6,6 +6,15 @@ namespace AddressBook
 {
     class Email
     {
+        // ID
+        private int _id;
+        public int ID
+        {
+            get => _id != 0 ? _id : -1;
+            set => _id = value;
+        }
+
+        // Text
         private string _text;
         public string Text
         {
@@ -13,6 +22,7 @@ namespace AddressBook
             set => _text = value;
         }
 
+        // Type
         private string _type;
         public string Type
         {

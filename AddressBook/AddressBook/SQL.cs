@@ -12,7 +12,7 @@ namespace AddressBook
         private static SqlConnection _connection = new SqlConnection(@"Data Source=.; Initial Catalog=AddressBook2.0; Integrated Security=SSPI;");
 
         /// <summary>
-        /// Gets all the contacts
+        /// Gets all the contacts from the database
         /// </summary>
         /// <returns></returns>
         public List<Contact> GetContacts()
@@ -24,7 +24,7 @@ namespace AddressBook
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = @"SELECT ID, FirstName, LastName, Contacts";
+                command.CommandText = @"SELECT ID, FirstName, LastName FROM Contacts";
                 command.CommandType = CommandType.Text;
 
                 using (var reader = command.ExecuteReader())
@@ -45,10 +45,147 @@ namespace AddressBook
                 }
             }
             _connection.Close();
+
+            // Get Phone Numbers for all the contacts
+            contacts = GetPhoneNumbers(contacts);
+
+            // Get Emails for all the contacts
+            contacts = GetEmails(contacts);
+
+            // Get Addresses for all the contacts
+            contacts = GetAddresses(contacts);
+
             return contacts;
         }
+
         /// <summary>
-        /// Display list of contacts from the database
+        /// Get all phone numbers for the contacts
+        /// </summary>
+        /// <param name="contacts"></param>
+        /// <returns></returns>
+        public List<Contact> GetPhoneNumbers(List<Contact> contacts)
+        {
+            foreach(var contact in contacts)
+            {
+                _connection.Open();
+
+                using (var command = _connection.CreateCommand())
+                {
+                    command.CommandText = $@"SELECT ID, Number, Type FROM PhoneNumbers WHERE ContactID = ${contact.ID}";
+                    command.CommandType = CommandType.Text;
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        // Loop through all contacts in the database
+                        while (reader.Read())
+                        {
+                            var phoneNumber = new PhoneNumber()
+                            {
+                                ID = (int)reader["ID"],
+                                Number = (string)reader["Number"],
+                                Type = (string)reader["Type"]
+                            };
+
+                            // Add phone numbers to contact's list
+                            contact.PhoneNumbers.Add(phoneNumber);
+                        }
+                    }
+                }
+
+                _connection.Close();
+            }
+
+            // Return contacts after phone numbers are added
+            return contacts;
+        }
+
+        /// <summary>
+        /// Get all emails for the contacts
+        /// </summary>
+        /// <param name="contacts"></param>
+        /// <returns></returns>
+        public List<Contact> GetEmails(List<Contact> contacts)
+        {
+            foreach (var contact in contacts)
+            {
+                _connection.Open();
+
+                using (var command = _connection.CreateCommand())
+                {
+                    command.CommandText = $@"SELECT ID, Text, Type FROM Emails WHERE ContactID = ${contact.ID}";
+                    command.CommandType = CommandType.Text;
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        // Loop through all contacts in the database
+                        while (reader.Read())
+                        {
+                            var email = new Email()
+                            {
+                                ID = (int)reader["ID"],
+                                Text = (string)reader["Text"],
+                                Type = (string)reader["Type"]
+                            };
+
+                            // Add emails to contact's list
+                            contact.Emails.Add(email);
+                        }
+                    }
+                }
+
+                _connection.Close();
+            }
+
+            // Return contacts after emails are added
+            return contacts;
+        }
+
+        /// <summary>
+        /// Get all addresses for the contacts
+        /// </summary>
+        /// <param name="contacts"></param>
+        /// <returns></returns>
+        public List<Contact> GetAddresses(List<Contact> contacts)
+        {
+            foreach (var contact in contacts)
+            {
+                _connection.Open();
+
+                using (var command = _connection.CreateCommand())
+                {
+                    command.CommandText = $@"SELECT ID, StreetName, City, State, ZipCode, Type FROM Addresses WHERE ContactID = ${contact.ID}";
+                    command.CommandType = CommandType.Text;
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        // Loop through all contacts in the database
+                        while (reader.Read())
+                        {
+                            var address = new Address()
+                            {
+                                ID = (int)reader["ID"],
+                                StreetName = (string)reader["StreetName"],
+                                City = (string)reader["City"],
+                                State = (string)reader["State"],
+                                ZipCode = (string)reader["ZipCode"],
+                                Type = (string)reader["Type"]
+                            };
+
+                            // Add addresses to the contact's list
+                            contact.Addresses.Add(address);
+                        }
+                    }
+                }
+
+                _connection.Close();
+            }
+
+            // Return contacts after emails are added
+            return contacts;
+        }
+
+        /// <summary>
+        /// Displays a list of all contacts from the database.
         /// </summary>
         public void DisplayContactsList()
         {
@@ -61,10 +198,10 @@ namespace AddressBook
         }
 
         /// <summary>
-        /// Checks if contact exists in the database
+        /// Gets a contact from the database or returns null if contact doesn't exist.
         /// </summary>
         /// <param name="ID"></param>
-        public bool ContactExists(int ID)
+        public Contact GetContact(int ID)
         {
             var contacts = GetContacts();
 
@@ -73,10 +210,10 @@ namespace AddressBook
             {
                 if(contact.ID == ID)
                 {
-                    return true;
+                    return contact;
                 }
             }
-            return false;
+            return null;
         }
 
     }

@@ -6,6 +6,14 @@ namespace AddressBook
 {
     class Address
     {
+        // ID
+        private int _id;
+        public int ID
+        {
+            get => _id != 0 ? _id : -1;
+            set => _id = value;
+        }
+
         // Street Name
         private string _streetName;
         public string StreetName
