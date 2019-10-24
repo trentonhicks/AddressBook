@@ -71,7 +71,7 @@ namespace AddressBook
 
                 using (var command = _connection.CreateCommand())
                 {
-                    command.CommandText = $@"SELECT ID, Number, Type FROM PhoneNumbers WHERE ContactID = ${contact.ID}";
+                    command.CommandText = $@"SELECT ID, Number, [Type] FROM PhoneNumbers WHERE ContactID = ${contact.ID}";
                     command.CommandType = CommandType.Text;
 
                     using (var reader = command.ExecuteReader())
@@ -82,8 +82,8 @@ namespace AddressBook
                             var phoneNumber = new PhoneNumber()
                             {
                                 ID = (int)reader["ID"],
-                                Number = (string)reader["Number"],
-                                Type = (string)reader["Type"]
+                                Number = reader["Number"] != DBNull.Value ? (string)reader["Number"] : "",
+                                Type = reader["Type"] != DBNull.Value ? (string)reader["Type"] : ""
                             };
 
                             // Add phone numbers to contact's list
@@ -112,7 +112,7 @@ namespace AddressBook
 
                 using (var command = _connection.CreateCommand())
                 {
-                    command.CommandText = $@"SELECT ID, Text, Type FROM Emails WHERE ContactID = ${contact.ID}";
+                    command.CommandText = $@"SELECT ID, [Text], [Type] FROM Emails WHERE ContactID = ${contact.ID}";
                     command.CommandType = CommandType.Text;
 
                     using (var reader = command.ExecuteReader())
@@ -123,8 +123,8 @@ namespace AddressBook
                             var email = new Email()
                             {
                                 ID = (int)reader["ID"],
-                                Text = (string)reader["Text"],
-                                Type = (string)reader["Type"]
+                                Text = reader["Text"] != DBNull.Value ? (string)reader["Text"] : "",
+                                Type = reader["Type"] != DBNull.Value ? (string)reader["Type"] : ""
                             };
 
                             // Add emails to contact's list
@@ -153,7 +153,7 @@ namespace AddressBook
 
                 using (var command = _connection.CreateCommand())
                 {
-                    command.CommandText = $@"SELECT ID, StreetName, City, State, ZipCode, Type FROM Addresses WHERE ContactID = ${contact.ID}";
+                    command.CommandText = $@"SELECT ID, StreetName, City, [State], ZipCode, [Type] FROM Addresses WHERE ContactID = ${contact.ID}";
                     command.CommandType = CommandType.Text;
 
                     using (var reader = command.ExecuteReader())
@@ -164,11 +164,11 @@ namespace AddressBook
                             var address = new Address()
                             {
                                 ID = (int)reader["ID"],
-                                StreetName = (string)reader["StreetName"],
-                                City = (string)reader["City"],
-                                State = (string)reader["State"],
-                                ZipCode = (string)reader["ZipCode"],
-                                Type = (string)reader["Type"]
+                                StreetName = reader["StreetName"] != DBNull.Value ? (string)reader["StreetName"] : "",
+                                City = reader["City"] != DBNull.Value ? (string)reader["City"] : "",
+                                State = reader["State"] != DBNull.Value ? (string)reader["State"] : "",
+                                ZipCode = reader["ZipCode"] != DBNull.Value ? (string)reader["ZipCode"] : "",
+                                Type = reader["Type"] != DBNull.Value ? (string)reader["Type"] : ""
                             };
 
                             // Add addresses to the contact's list
