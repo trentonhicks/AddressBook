@@ -36,8 +36,8 @@ namespace AddressBook
                         var contact = new Contact()
                         {
                             ID = (int)reader["ID"],
-                            FirstName = (string)reader["FirstName"],
-                            LastName = (string)reader["LastName"]
+                            FirstName = reader["FirstName"] == DBNull.Value ? "" : (string)reader["FirstName"],
+                            LastName = reader["LastName"] == DBNull.Value ? "" : (string)reader["LastName"]
                         };
                         // Add contact to list
                         contacts.Add(contact);
@@ -196,11 +196,28 @@ namespace AddressBook
                 Console.WriteLine($"{contact.ID} {contact.FirstName} {contact.LastName}");
             }
         }
+
         public void DisplayPhoneNumbers(Contact contact)
         {
-            foreach(var phoneNumber in contact.PhoneNumbers)
+            foreach (var phoneNumber in contact.PhoneNumbers)
             {
-                Console.WriteLine($"{phoneNumber.ID} {phoneNumber.Number} {phoneNumber.Type}");
+                Console.WriteLine($"{phoneNumber.ID}:{phoneNumber.Number} / {phoneNumber.Type}");
+            }
+        }
+
+        public void DisplayEmails(Contact contact)
+        {
+            foreach (var emails in contact.Emails)
+            {
+                Console.WriteLine($"{emails.ID}:{emails.Text} / {emails.Type}");
+            }
+        }
+
+        public void DisplayAddresses(Contact contact)
+        {
+            foreach (var address in contact.Addresses)
+            {
+                Console.WriteLine($"{address.ID}:{address.StreetName}\n{address.State}\n{address.ZipCode}\n{address.Type}");
             }
         }
 
@@ -263,26 +280,29 @@ namespace AddressBook
         {
             foreach (var address in contact.Addresses)
             {
-                _connection.Open();
-
-                using (var command = _connection.CreateCommand())
+                if(address.StreetName != "NULL" || address.City != "NULL" || address.State != "NULL" || address.ZipCode != "NULL" || address.Type != "NULL")
                 {
-                    command.CommandText = $@"INSERT INTO Addresses(ContactID, StreetName, City, [State], ZipCode, [Type])
+                    _connection.Open();
+
+                    using (var command = _connection.CreateCommand())
+                    {
+                        command.CommandText = $@"INSERT INTO Addresses(ContactID, StreetName, City, [State], ZipCode, [Type])
                                            VALUES (@contactID, @streetName, @city, @state, @zipCode, @type)";
-                    command.CommandType = CommandType.Text;
+                        command.CommandType = CommandType.Text;
 
-                    // Insert values
-                    command.Parameters.AddWithValue("@contactID", contact.ID);
-                    command.Parameters.AddWithValue("@streetName", address.StreetName == "NULL" ? (object)DBNull.Value : address.StreetName);
-                    command.Parameters.AddWithValue("@city", address.City == "NULL" ? (object)DBNull.Value : address.City);
-                    command.Parameters.AddWithValue("@state", address.State == "NULL" ? (object)DBNull.Value : address.State);
-                    command.Parameters.AddWithValue("@zipCode", address.ZipCode == "NULL" ? (object)DBNull.Value : address.ZipCode);
-                    command.Parameters.AddWithValue("@type", address.Type == "NULL" ? (object)DBNull.Value : address.Type);
+                        // Insert values
+                        command.Parameters.AddWithValue("@contactID", contact.ID);
+                        command.Parameters.AddWithValue("@streetName", address.StreetName == "NULL" ? (object)DBNull.Value : address.StreetName);
+                        command.Parameters.AddWithValue("@city", address.City == "NULL" ? (object)DBNull.Value : address.City);
+                        command.Parameters.AddWithValue("@state", address.State == "NULL" ? (object)DBNull.Value : address.State);
+                        command.Parameters.AddWithValue("@zipCode", address.ZipCode == "NULL" ? (object)DBNull.Value : address.ZipCode);
+                        command.Parameters.AddWithValue("@type", address.Type == "NULL" ? (object)DBNull.Value : address.Type);
 
-                    command.ExecuteNonQuery();
+                        command.ExecuteNonQuery();
+                    }
+
+                    _connection.Close();
                 }
-
-                _connection.Close();
             }
         }
 
@@ -295,22 +315,25 @@ namespace AddressBook
             // Phone Numbers
             foreach (var phoneNumber in phoneNumbers)
             {
-                _connection.Open();
-
-                using (var command = _connection.CreateCommand())
+                if(phoneNumber.Number != "NULL" || phoneNumber.Type != "NULL")
                 {
-                    command.CommandText = $@"INSERT INTO PhoneNumbers(ContactID, Number, [Type]) VALUES (@contactID, @number, @type)";
-                    command.CommandType = CommandType.Text;
+                    _connection.Open();
 
-                    // Insert values
-                    command.Parameters.AddWithValue("@contactID", contact.ID);
-                    command.Parameters.AddWithValue("@number", phoneNumber.Number == "NULL" ? (object)DBNull.Value : phoneNumber.Number);
-                    command.Parameters.AddWithValue("@type", phoneNumber.Type == "NULL" ? (object)DBNull.Value : phoneNumber.Type);
+                    using (var command = _connection.CreateCommand())
+                    {
+                        command.CommandText = $@"INSERT INTO PhoneNumbers(ContactID, Number, [Type]) VALUES (@contactID, @number, @type)";
+                        command.CommandType = CommandType.Text;
 
-                    command.ExecuteNonQuery();
+                        // Insert values
+                        command.Parameters.AddWithValue("@contactID", contact.ID);
+                        command.Parameters.AddWithValue("@number", phoneNumber.Number == "NULL" ? (object)DBNull.Value : phoneNumber.Number);
+                        command.Parameters.AddWithValue("@type", phoneNumber.Type == "NULL" ? (object)DBNull.Value : phoneNumber.Type);
+
+                        command.ExecuteNonQuery();
+                    }
+
+                    _connection.Close();
                 }
-
-                _connection.Close();
             }
         }
 
@@ -318,22 +341,25 @@ namespace AddressBook
         {
             foreach (var email in contact.Emails)
             {
-                _connection.Open();
-
-                using (var command = _connection.CreateCommand())
+                if(email.Text != "NULL" || email.Type != "NULL")
                 {
-                    command.CommandText = $@"INSERT INTO Emails(ContactID, Text, [Type]) VALUES (@contactID, @text, @type)";
-                    command.CommandType = CommandType.Text;
+                    _connection.Open();
 
-                    // Insert values
-                    command.Parameters.AddWithValue("@contactID", contact.ID);
-                    command.Parameters.AddWithValue("@text", email.Text == "NULL" ? (object)DBNull.Value : email.Text);
-                    command.Parameters.AddWithValue("@type", email.Type == "NULL" ? (object)DBNull.Value : email.Type);
+                    using (var command = _connection.CreateCommand())
+                    {
+                        command.CommandText = $@"INSERT INTO Emails(ContactID, Text, [Type]) VALUES (@contactID, @text, @type)";
+                        command.CommandType = CommandType.Text;
 
-                    command.ExecuteNonQuery();
+                        // Insert values
+                        command.Parameters.AddWithValue("@contactID", contact.ID);
+                        command.Parameters.AddWithValue("@text", email.Text == "NULL" ? (object)DBNull.Value : email.Text);
+                        command.Parameters.AddWithValue("@type", email.Type == "NULL" ? (object)DBNull.Value : email.Type);
+
+                        command.ExecuteNonQuery();
+                    }
+
+                    _connection.Close();
                 }
-
-                _connection.Close();
             }
         }
 
@@ -371,60 +397,32 @@ namespace AddressBook
         }
 
 
-        public void UpdatePhoneNumber(int FKID, string phoneNumber, string type)
+        public void UpdatePhoneNumber(int FKID, int phoneNumberID, string phoneNumber, string type)
         {
-            int ID;
-
             _connection.Open();
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $@"SELECT Number FROM PhoneNumbers OUTPUT Inserted.ID WHERE ContactID = {FKID} AND Number = '{phoneNumber}';";
-
-                ID = Convert.ToInt32(command.ExecuteScalar().ToString());
-
-                command.CommandText = $@"UPDATE PhoneNumbers SET Number = '' WHERE ID ={ID}";
-
-                command.CommandText = $@"SELECT [Type] FROM PhoneNumbers OUTPUT Inserted.ID WHERE ContactID = {FKID} AND [Type]  = '{type}'";
-
-                ID = Convert.ToInt32(command.ExecuteScalar().ToString());
-
-                command.CommandText = $@"UPDATE PhoneNumbers SET [Type] = '' WHERE ID ={ID}";
-
-
+                command.CommandText = $@"UPDATE PhoneNumbers SET Number = '{phoneNumber}', [Type] = '{type}' WHERE ContactID = {FKID} AND ID = {phoneNumberID}";
                 command.ExecuteNonQuery();
             }
-
             _connection.Close();
         }
 
-        public void UpdateEmail(int FKID, string email, string type)
+        public void UpdateEmail(int FKID, string emailID, string email, string type)
         {
-            int ID;
-
             _connection.Open();
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $@"SELECT Text FROM Emails WHERE ContactID = {FKID} AND Text= '{email}'";
-
-                ID = Convert.ToInt32(command.ExecuteScalar().ToString());
-
-                command.CommandText = $@"UPDATE Emails SET Text = '{email}' WHERE ID ={ID}";
-
-                command.CommandText = $@"SELECT [Type] FROM Emails WHERE ContactID = {FKID} AND [Type] = '{type}'";
-
-                ID = Convert.ToInt32(command.ExecuteScalar().ToString());
-
-                command.CommandText = $@"UPDATE Emails SET [Type] = '{email}' WHERE ID ={ID}";
-
+                command.CommandText = $@"UPDATE Emails SET Text = '{email}', [Type] = '{type}' WHERE ContactID = {FKID} AND ID = {emailID}";
                 command.ExecuteNonQuery();
             }
             _connection.Close();
 
         }
 
-        public void UpdateStreetName (int FKID, string address)
+        public void UpdateStreetName (int FKID, string streetNameID, string streetName)
         {
             int ID;
 
@@ -432,17 +430,14 @@ namespace AddressBook
 
             using(var command = _connection.CreateCommand())
             {
-                command.CommandText = $@"SELECT StreetName FROM Addresses WHERE ContactID = {FKID} AND StreetName = '{address}'";
-
-                ID = Convert.ToInt32(command.ExecuteScalar().ToString());
-
-                command.CommandText = $@"UPDATE Addresses SET StreetName = {address} WHERE ID = {ID}";
+                command.CommandText = $@"UPDATE Addresses SET StreetName = '{streetName}' WHERE ContactID = {FKID} AND ID = {streetNameID}";
+                command.ExecuteNonQuery();
             }
 
             _connection.Close();
         }
 
-        public void UpdateState(int FKID, string address)
+        public void UpdateState(int FKID, string stateID, string state)
         {
 
             int ID;
@@ -451,12 +446,7 @@ namespace AddressBook
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $@"SELECT State FROM Addresses WHERE ContactID = {FKID} AND State = '{address}'";
-
-                ID = Convert.ToInt32(command.ExecuteScalar().ToString());
-
-                command.CommandText = $@"UPDATE Addresses SET State = {address} WHERE ID = {ID}";
-
+                command.CommandText = $@"UPDATE Addresses SET StreetName = '{state}' WHERE ContactID = {FKID} AND ID = {stateID}";
                 command.ExecuteNonQuery();
             }
 

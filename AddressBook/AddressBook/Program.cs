@@ -211,6 +211,7 @@ namespace AddressBook
                             break;
                         case "3":
                             EditPhoneNumbers(collect, sql, contact);
+                            contact = sql.GetContact(contact.ID);
                             break;
                         case "4":
                             var email = new Email();
@@ -244,48 +245,57 @@ namespace AddressBook
         }
         public static void EditPhoneNumbers(Collect collect, SQL sql, Contact contact)
         {
-            Console.WriteLine("0. => Go back");
-            Console.WriteLine("add. add a new phone number");
-
-            sql.DisplayPhoneNumbers(contact);
-
-            Console.WriteLine("Enter the ID of the number you wish you wish to edit");
-
-            var input = Console.ReadLine();
-
-            switch (input)
+            while (true)
             {
-                case "0":
-                    return;
-                case "add":
-                    // Store new numbers in a list
-                    var phoneNumbers = new List<PhoneNumber>();
+                Console.WriteLine("0. => Go back");
+                Console.WriteLine("add. add a new phone number");
 
-                    // Create new number and collect fields
-                    var phoneNumber = new PhoneNumber()
-                    {
-                        Number = collect.CollectField(fieldName: "Number", previousValue: "", required: false),
-                        Type = collect.CollectField(fieldName: "Type", previousValue: "", required: false)
-                    };
+                sql.DisplayPhoneNumbers(contact);
 
-                    // Insert number
-                    sql.InsertPhoneNumbers(contact, phoneNumbers);
+                Console.WriteLine("Enter the ID of the number you wish you wish to edit");
 
-                    break;
-                default:
-                    // Check if input is number and output the phone number ID
-                    bool isNumber;
-                    isNumber = int.TryParse(input, out int id);
+                var input = Console.ReadLine();
 
-                    // Edit existing number if user typed in phone number ID
-                    if (isNumber)
-                    {
-                        var phoneNumberNumber = collect.CollectField(fieldName: "Number", previousValue: contact.PhoneNumbers.Find(number => number.ID == id).Number, required: false);
-                        var phoneNumberType = collect.CollectField(fieldName: "Type", previousValue: contact.PhoneNumbers.Find(type => type.ID == id).Type, required: false);
-                        sql.UpdatePhoneNumber(contact.ID, phoneNumberNumber, phoneNumberType);
-                    }
+                switch (input)
+                {
+                    case "0":
+                        Console.Clear();
+                        return;
+                    case "add":
+                        // Store new numbers in a list
+                        var phoneNumbers = new List<PhoneNumber>();
 
-                    break;
+                        // Create new number and collect fields
+                        var phoneNumber = new PhoneNumber()
+                        {
+                            Number = collect.CollectField(fieldName: "Number", previousValue: "", required: false),
+                            Type = collect.CollectField(fieldName: "Type", previousValue: "", required: false)
+                        };
+
+                        // Add number to list
+                        phoneNumbers.Add(phoneNumber);
+
+                        // Insert number
+                        sql.InsertPhoneNumbers(contact, phoneNumbers);
+                        contact = sql.GetContact(contact.ID);
+
+                        break;
+                    default:
+                        // Check if input is number and output the phone number ID
+                        bool isNumber;
+                        isNumber = int.TryParse(input, out int phoneNumberID);
+
+                        // Edit existing number if user typed in phone number ID
+                        if (isNumber)
+                        {
+                            var phoneNumberNumber = collect.CollectField(fieldName: "Number", previousValue: contact.PhoneNumbers.Find(number => number.ID == phoneNumberID).Number, required: false);
+                            var phoneNumberType = collect.CollectField(fieldName: "Type", previousValue: contact.PhoneNumbers.Find(type => type.ID == phoneNumberID).Type, required: false);
+                            sql.UpdatePhoneNumber(contact.ID, phoneNumberID, phoneNumberNumber, phoneNumberType);
+                            contact = sql.GetContact(contact.ID);
+                        }
+
+                        break;
+                }
             }
         }
     }
