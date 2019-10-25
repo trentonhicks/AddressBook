@@ -229,7 +229,7 @@ namespace AddressBook
                 command.Parameters.AddWithValue("@firstName", contact.FirstName);
                 command.Parameters.AddWithValue("@lastName", contact.LastName == "NULL" ? (object)DBNull.Value : contact.LastName);
 
-                contact.ID = (int)command.ExecuteScalar();
+                contact.ID = Convert.ToInt32(command.ExecuteScalar());
             }
 
             _connection.Close();

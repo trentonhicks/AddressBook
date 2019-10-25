@@ -77,14 +77,11 @@ namespace AddressBook
                 Console.WriteLine("wrong input");
             }
             return field;
-
-
         }
 
         //Collects int and only int for ID//
         public int CollectID(string msg)
         {
-            
             Console.Write($"{msg}: ");
             //If an int return user input//
             while (true)
@@ -101,9 +98,6 @@ namespace AddressBook
                     Console.WriteLine("Wrong Input! Int only!");
                 }
             }
-           
-
         }
-
     }
 }
