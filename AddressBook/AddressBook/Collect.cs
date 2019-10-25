@@ -76,7 +76,7 @@ namespace AddressBook
             {
                 Console.WriteLine("wrong input");
             }
-            return field;
+            return CollectInt(previousValue);
         }
 
         //Collects int and only int for ID//

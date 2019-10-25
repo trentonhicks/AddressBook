@@ -222,14 +222,13 @@ namespace AddressBook
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $@"INSERT INTO Contacts(FirstName, LastName)VALUES (@firstName, @lastName)";
-                command.CommandType = CommandType.Text;
+                command.CommandText = $@"INSERT INTO Contacts(FirstName, LastName) OUTPUT Inserted.ID VALUES (@firstName, @lastName)";
 
                 // Insert values
                 command.Parameters.AddWithValue("@firstName", contact.FirstName);
                 command.Parameters.AddWithValue("@lastName", contact.LastName == "NULL" ? (object)DBNull.Value : contact.LastName);
 
-                contact.ID = Convert.ToInt32(command.ExecuteScalar());
+                contact.ID = Convert.ToInt32(command.ExecuteScalar().ToString());
             }
 
             _connection.Close();
