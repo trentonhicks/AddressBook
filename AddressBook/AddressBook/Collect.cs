@@ -26,7 +26,6 @@ namespace AddressBook
                     userInput = Console.ReadLine();
                     if (userInput == "0")
                     {
-
                         return previousValue;
                     }
                     else if (userInput == "")

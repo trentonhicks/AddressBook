@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AddressBook
 {
@@ -152,34 +153,11 @@ namespace AddressBook
                     Menu(collect, sql);
                     break;
                 case "1":
-                    ViewEdit(sql);
+                    EditContact(collect, sql);
                     break;
                 case "2":
                     Console.WriteLine("Delete");
                     break;
-            }
-        }
-        public static void ViewEdit(SQL sql)
-        {
-
-            while (true)
-            {
-                sql.DisplayContactsList();
-
-                Console.Write("" +
-                    "\n0.=> Return to previous menu" +
-                    "\n\nEnter the ID of the contact you wish to View/Edit:");
-
-                var input = Console.ReadLine();
-
-                Console.Clear();
-
-                switch (input)
-                {
-                    case "0":
-                        ContactListSelection();
-                        break;
-                }
             }
         }
         public static void DeleteContact()
@@ -193,9 +171,8 @@ namespace AddressBook
 
         public static void EditContact(Collect collect, SQL sql)
         {
-
-            var ID = collect.CollectID("enter id of contact you'd like to edit.");
-
+            sql.DisplayContactsList();
+            var ID = collect.CollectID("Enter id of contact you'd like to edit");
 
             // Get contact
             var contact = sql.GetContact(ID);
@@ -212,32 +189,10 @@ namespace AddressBook
                     Console.WriteLine("0.=>Back to Menu");
                     Console.WriteLine($"1.FirstName: {contact.FirstName}");
                     Console.WriteLine($"2.Last Name: {contact.LastName}");
-                    Console.Write($"3.Phone Number: ");
-                    foreach (var phoneNumbers in contact.PhoneNumbers)
-                    {
-                        Console.Write("" +
-                            $"Number:{phoneNumbers.Number} / Type:{phoneNumbers.Type}");
-                    }
+                    Console.Write($"3.Phone Numbers: {contact.FirstName} has {contact.PhoneNumbers.Count} number(s)");
+                    Console.Write($"\n4.Emails: {contact.FirstName} has {contact.Emails.Count} email(s)");
+                    Console.WriteLine($"\n5.Addresses: {contact.FirstName} has {contact.Addresses.Count} address(es)");
 
-                    Console.Write($"\n4.Email: ");
-                    foreach (var Emails in contact.Emails)
-                    {
-                        Console.Write("" +
-                            $"Text:{Emails.Text} / Type:{Emails.Type}");
-                    }
-
-                    Console.WriteLine($"\n5.Address: ");
-                    foreach (var addresses in contact.Addresses)
-                    {
-                        Console.Write("" +
-                            $"-Street Name:{addresses.StreetName}" +
-                            $"\n-City:{addresses.City}" +
-                            $"\n-State:{addresses.State}" +
-                            $"\n-ZipCode:{addresses.ZipCode}\n");
-                    }
-                    
-
-                    Console.Write("\nNumber selected: ");
                     var input = Console.ReadLine();
 
                     //adding input to database once case is declared.
@@ -252,15 +207,10 @@ namespace AddressBook
                             break;
                         case "2":
                             contact.LastName = collect.CollectField(fieldName: "Last Name", previousValue: contact.LastName, required: false);
-                            sql.UpdateLastName(contact.ID, contact.FirstName);
+                            sql.UpdateLastName(contact.ID, contact.LastName);
                             break;
                         case "3":
-                            var phoneNumber = new PhoneNumber();
-
-                            phoneNumber.Number = collect.CollectField(fieldName: "Number", previousValue: phoneNumber.Number, required: false);
-                            phoneNumber.Type = collect.CollectField(fieldName: "Type", previousValue: phoneNumber.Type, required: false);
-
-                            contact.PhoneNumbers.Add(phoneNumber);
+                            EditPhoneNumbers(collect, sql, contact);
                             break;
                         case "4":
                             var email = new Email();
@@ -281,10 +231,61 @@ namespace AddressBook
 
                             contact.Addresses.Add(address);
                             break;
-                      
+
                     }
                 }
+            }
 
+            // Contact doesn't exist
+            else
+            {
+                
+            }
+        }
+        public static void EditPhoneNumbers(Collect collect, SQL sql, Contact contact)
+        {
+            Console.WriteLine("0. => Go back");
+            Console.WriteLine("add. add a new phone number");
+
+            sql.DisplayPhoneNumbers(contact);
+
+            Console.WriteLine("Enter the ID of the number you wish you wish to edit");
+
+            var input = Console.ReadLine();
+
+            switch (input)
+            {
+                case "0":
+                    return;
+                case "add":
+                    // Store new numbers in a list
+                    var phoneNumbers = new List<PhoneNumber>();
+
+                    // Create new number and collect fields
+                    var phoneNumber = new PhoneNumber()
+                    {
+                        Number = collect.CollectField(fieldName: "Number", previousValue: "", required: false),
+                        Type = collect.CollectField(fieldName: "Type", previousValue: "", required: false)
+                    };
+
+                    // Insert number
+                    sql.InsertPhoneNumbers(contact, phoneNumbers);
+
+                    break;
+                default:
+                    // Check if input is number and output the phone number ID
+                    bool isNumber;
+                    isNumber = int.TryParse(input, out int id);
+
+                    // Edit existing number if user typed in phone number ID
+                    if (isNumber)
+                    {
+                        var phoneNumberNumber = collect.CollectField(fieldName: "Number", previousValue: contact.PhoneNumbers.Find(number => number.ID == id).Number, required: false);
+                        var phoneNumberType = collect.CollectField(fieldName: "Type", previousValue: contact.PhoneNumbers.Find(type => type.ID == id).Type, required: false);
+                        sql.UpdatePhoneNumber(contact.ID, phoneNumberNumber, phoneNumberType);
+                    }
+
+                    break;
             }
         }
     }
