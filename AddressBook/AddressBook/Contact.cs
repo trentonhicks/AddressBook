@@ -18,7 +18,7 @@ namespace AddressBook
         private string _firstName;
         public string FirstName
         {
-            get => _firstName != "" ? _firstName : "NULL";
+            get => _firstName != "" ? _firstName : "No name";
             set => _firstName = value;
         }
 

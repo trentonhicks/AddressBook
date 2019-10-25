@@ -216,5 +216,91 @@ namespace AddressBook
             return null;
         }
 
+        public void CreateContact(Contact contact)
+        {
+            _connection.Open();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"INSERT INTO Contacts(FirstName, LastName)VALUES (@firstName, @lastName)";
+                command.CommandType = CommandType.Text;
+
+                // Insert values
+                command.Parameters.AddWithValue("@firstName", contact.FirstName);
+                command.Parameters.AddWithValue("@lastName", contact.LastName == "NULL" ? (object)DBNull.Value : contact.LastName);
+
+                contact.ID = (int)command.ExecuteScalar();
+            }
+
+            _connection.Close();
+
+            // Addresses
+            foreach(var address in contact.Addresses)
+            {
+                _connection.Open();
+
+                using (var command = _connection.CreateCommand())
+                {
+                    command.CommandText = $@"INSERT INTO Addresses(ContactID, StreetName, City, State, ZipCode, [Type])
+                                           VALUES (@contactID, @streetName, @city, @state, @zipCode, @type)";
+                    command.CommandType = CommandType.Text;
+
+                    // Insert values
+                    command.Parameters.AddWithValue("@contactID", contact.ID);
+                    command.Parameters.AddWithValue("@streetName", address.StreetName == "NULL" ? (object)DBNull.Value : address.StreetName);
+                    command.Parameters.AddWithValue("@city", address.City == "NULL" ? (object)DBNull.Value : address.City);
+                    command.Parameters.AddWithValue("@state", address.State == "NULL" ? (object)DBNull.Value : address.State);
+                    command.Parameters.AddWithValue("@zipCode", address.ZipCode == "NULL" ? (object)DBNull.Value : address.ZipCode);
+                    command.Parameters.AddWithValue("@type", address.Type == "NULL" ? (object)DBNull.Value : address.Type);
+
+                    command.ExecuteNonQuery();
+                }
+
+                _connection.Close();
+            }
+
+            // Phone Numbers
+            foreach (var phoneNumber in contact.PhoneNumbers)
+                {
+                _connection.Open();
+
+                using (var command = _connection.CreateCommand())
+                {
+                    command.CommandText = $@"INSERT INTO PhoneNumbers(ContactID, Number, [Type]) VALUES (@contactID, @number, @type)";
+                    command.CommandType = CommandType.Text;
+
+                    // Insert values
+                    command.Parameters.AddWithValue("@contactID", contact.ID);
+                    command.Parameters.AddWithValue("@number", phoneNumber.Number == "NULL" ? (object)DBNull.Value : phoneNumber.Number);
+                    command.Parameters.AddWithValue("@type", phoneNumber.Type == "NULL" ? (object)DBNull.Value : phoneNumber.Type);
+
+                    command.ExecuteNonQuery();
+                }
+
+                _connection.Close();
+            }
+
+            // Emails
+            foreach (var email in contact.Emails)
+            {
+                _connection.Open();
+
+                using (var command = _connection.CreateCommand())
+                {
+                    command.CommandText = $@"INSERT INTO Emails(ContactID, Text, [Type]) VALUES (@contactID, @text, @type)";
+                    command.CommandType = CommandType.Text;
+
+                    // Insert values
+                    command.Parameters.AddWithValue("@contactID", contact.ID);
+                    command.Parameters.AddWithValue("@text", email.Text == "NULL" ? (object)DBNull.Value : email.Text);
+                    command.Parameters.AddWithValue("@type", email.Type == "NULL" ? (object)DBNull.Value : email.Type);
+
+                    command.ExecuteNonQuery();
+                }
+
+                _connection.Close();
+            }
+        } // End of CreateContact
+
     }
 }
