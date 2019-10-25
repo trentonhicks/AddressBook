@@ -65,7 +65,7 @@ namespace AddressBook
         /// <returns></returns>
         public List<Contact> GetPhoneNumbers(List<Contact> contacts)
         {
-            foreach(var contact in contacts)
+            foreach (var contact in contacts)
             {
                 _connection.Open();
 
@@ -191,7 +191,7 @@ namespace AddressBook
         {
             var contacts = GetContacts();
 
-            foreach(var contact in contacts)
+            foreach (var contact in contacts)
             {
                 Console.WriteLine($"{contact.ID} {contact.FirstName} {contact.LastName}");
             }
@@ -206,9 +206,9 @@ namespace AddressBook
             var contacts = GetContacts();
 
             // Check for contact in the database by comparing with ID
-            foreach(var contact in contacts)
+            foreach (var contact in contacts)
             {
-                if(contact.ID == ID)
+                if (contact.ID == ID)
                 {
                     return contact;
                 }
@@ -234,7 +234,7 @@ namespace AddressBook
             _connection.Close();
 
             // Addresses
-            foreach(var address in contact.Addresses)
+            foreach (var address in contact.Addresses)
             {
                 _connection.Open();
 
@@ -260,7 +260,7 @@ namespace AddressBook
 
             // Phone Numbers
             foreach (var phoneNumber in contact.PhoneNumbers)
-                {
+            {
                 _connection.Open();
 
                 using (var command = _connection.CreateCommand())
@@ -299,7 +299,61 @@ namespace AddressBook
 
                 _connection.Close();
             }
+
         } // End of CreateContact
 
+        //update first name//
+        public void UpdateFirstName(int ID, string firstname)
+        {
+
+            _connection.Open();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"UPDATE Contacts SET FirstName = '{firstname}' WHERE ID = {ID}";
+
+                command.ExecuteNonQuery();
+
+            }
+            _connection.Close();
+        }
+
+        //update last name//
+        public void UpdateLastName(int ID, string lastname)
+        {
+
+            _connection.Open();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"UPDATE Contacts SET LastName = '{lastname}' WHERE ID = {ID}";
+
+                command.ExecuteNonQuery();
+
+            }
+            _connection.Close();
+
+        }
+
+
+        public void UpdatePhoneNumber(int FKID, string phoneNumber)
+        {
+            int ID;
+
+            _connection.Open();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"SELECT Number FROM PhoneNumbers WHERE ContactID = {FKID} AND Number = {phoneNumber};";
+
+                ID = Convert.ToInt32(command.ExecuteScalar());
+
+                command.CommandText = $@"UPDATE PhoneNumbers SET Number = '' WHERE ID ={ID}";
+
+           command.ExecuteNonQuery();
+            }
+
+            _connection.Close();
+        }
     }
 }

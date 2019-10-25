@@ -72,19 +72,23 @@ namespace AddressBook
                     foreach (var phoneNumbers in contact.PhoneNumbers)
                     {
                         Console.WriteLine("" +
-                            $"\nNumber:{phoneNumbers.Number}" +
+                            $"Number:{phoneNumbers.Number}" +
                             $"\nType:{phoneNumbers.Type}");
                     }
 
                     Console.WriteLine($"4.Email:");
+                    foreach (var Emails in contact.Emails)
+                    {
+                        Console.WriteLine("" +
+                            $"Email:{Emails.Text}" +
+                            $"\nType:{Emails.Type}");
+                    }
 
-                    Console.WriteLine($"5.Address:\n");
-
-
+                    Console.WriteLine($"5.Address:");
                     foreach (var addresses in contact.Addresses)
                     {
                         Console.WriteLine("" +
-                            $"\nStreet Name:{addresses.StreetName}" +
+                            $"Street Name:{addresses.StreetName}" +
                             $"\nCity:{addresses.City}" +
                             $"\nState:{addresses.State}" +
                             $"\nStreet Name:{addresses.ZipCode}");
@@ -95,7 +99,7 @@ namespace AddressBook
                 //    Console.Write($"\n\nStreetName: {contact.Addresses[i].StreetName + "\n"}City:{contact.Addresses[i].City + "\n"}State:{contact.Addresses[i].State + "\n"}Zip:{ contact.Addresses[i].Zip + " "}");
                 //}
 
-                Console.Write("Number selected: ");
+                Console.Write("\nNumber selected: ");
 
                     var input = Console.ReadLine();
 
