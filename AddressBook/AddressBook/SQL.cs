@@ -302,7 +302,7 @@ namespace AddressBook
 
         } // End of CreateContact
 
-        //update first name//
+        // Update first name
         public void UpdateFirstName(int ID, string firstname)
         {
 
@@ -344,7 +344,7 @@ namespace AddressBook
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $@"SELECT Number FROM PhoneNumbers WHERE ContactID = {FKID} AND Number = {phoneNumber};";
+                command.CommandText = $@"SELECT Number FROM PhoneNumbers WHERE ContactID = {FKID} AND Number = '{phoneNumber}';";
 
                 ID = Convert.ToInt32(command.ExecuteScalar());
 
@@ -355,5 +355,20 @@ namespace AddressBook
 
             _connection.Close();
         }
+
+        //public void UpdateEmail(int FKD, string phoneNumber)
+        //{
+        //    int ID;
+
+        //    _connection.Open();
+
+        //    using (var command = _connection.CreateCommand())
+        //    {
+        //        command.CommandText = $@"SELECT Number FROM Emails WHERE ContactID = {FKID} AND Number= '{phoneNumber}'";
+
+        //        ID = Co
+        //    }
+            
+        //}
     }
 }

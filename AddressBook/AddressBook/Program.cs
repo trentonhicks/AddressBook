@@ -43,94 +43,88 @@ namespace AddressBook
         //Menu screen when 1.Create Contact has been selected
         public static void CreateContact(Collect collect, SQL sql)
         {
+            //creating variables for adding user input to the classes.
+            var contact = new Contact();
+
             while (true)
             {
-                //creating variables for adding user input to the classes.
-                var contact = new Contact();
+                Console.Clear();
 
-                while (true)
+                //display
+                Console.WriteLine("0.=>Back to Menu");
+                Console.WriteLine($"1.FirstName: {contact.FirstName}");
+                Console.WriteLine($"2.Last Name: {contact.LastName}");
+                Console.Write($"3.Phone Number: ");
+                foreach (var phoneNumbers in contact.PhoneNumbers)
                 {
-                    Console.Clear();
+                    Console.Write("" +
+                        $"Number:{phoneNumbers.Number} / Type:{phoneNumbers.Type}");
+                }
 
-                    //display
-                    Console.WriteLine("0.=>Back to Menu");
+                Console.Write($"\n4.Email: ");
+                foreach (var Emails in contact.Emails)
+                {
+                    Console.Write("" +
+                        $"Text:{Emails.Text} / Type:{Emails.Type}");
+                }
 
-                    Console.WriteLine($"1.FirstName: {contact.FirstName}");
+                Console.WriteLine($"\n5.Address: ");
+                foreach (var addresses in contact.Addresses)
+                {
+                    Console.Write("" +
+                        $"-Street Name:{addresses.StreetName}" +
+                        $"\n-City:{addresses.City}" +
+                        $"\n-State:{addresses.State}" +
+                        $"\n-ZipCode:{addresses.ZipCode}\n");
+                }
+                Console.WriteLine("\n6.Save");
 
-                    Console.WriteLine($"2.Last Name: {contact.LastName}");
+                Console.Write("\nNumber selected: ");
 
-                    Console.Write($"3.Phone Number: ");
-                    foreach (var phoneNumbers in contact.PhoneNumbers)
-                    {
-                        Console.Write("" +
-                            $"Number:{phoneNumbers.Number} / Type:{phoneNumbers.Type}");
-                    }
+                var input = Console.ReadLine();
 
-                    Console.Write($"\n4.Email: ");
-                    foreach (var Emails in contact.Emails)
-                    {
-                        Console.Write("" +
-                            $"Text:{Emails.Text} / Type:{Emails.Type}");
-                    }
+                //adding input to database once case is declared.
+                switch (input)
+                {
+                    case "0":
+                        Menu(collect, sql);
+                        break;
+                    case "1":
+                        contact.FirstName = collect.CollectField(fieldName: "First Name", previousValue: contact.FirstName, required: true);
+                        break;
+                    case "2":
+                        contact.LastName = collect.CollectField(fieldName: "Last Name", previousValue: contact.LastName, required: false);
+                        break;
+                    case "3":
+                        var phoneNumber = new PhoneNumber();
 
-                    Console.WriteLine($"\n5.Address: ");
-                    foreach (var addresses in contact.Addresses)
-                    {
-                        Console.Write("" +
-                            $"-Street Name:{addresses.StreetName}" +
-                            $"\n-City:{addresses.City}" +
-                            $"\n-State:{addresses.State}" +
-                            $"\n-ZipCode:{addresses.ZipCode}\n");
-                    }
-                    Console.WriteLine("\n6.Save");
+                        phoneNumber.Number = collect.CollectField(fieldName: "Number", previousValue: phoneNumber.Number, required: false);
+                        phoneNumber.Type = collect.CollectField(fieldName: "Type", previousValue: phoneNumber.Type, required: false);
 
-                    Console.Write("\nNumber selected: ");
+                        contact.PhoneNumbers.Add(phoneNumber);
+                        break;
+                    case "4":
+                        var email = new Email();
 
-                    var input = Console.ReadLine();
+                        email.Text = collect.CollectField(fieldName: "Text", previousValue: email.Text, required: false);
+                        email.Type = collect.CollectField(fieldName: "Type", previousValue: email.Type, required: false);
 
-                    //adding input to database once case is declared.
-                    switch (input)
-                    {
-                        case "0":
-                            Menu(collect, sql);
-                            break;
-                        case "1":
-                            contact.FirstName = collect.CollectField(fieldName: "First Name", previousValue: contact.FirstName, required: true);
-                            break;
-                        case "2":
-                            contact.LastName = collect.CollectField(fieldName: "Last Name", previousValue: contact.LastName, required: false);
-                            break;
-                        case "3":
-                            var phoneNumber = new PhoneNumber();
+                        contact.Emails.Add(email);
+                        break;
+                    case "5":
+                        var address = new Address();
 
-                            phoneNumber.Number = collect.CollectField(fieldName: "Number", previousValue: phoneNumber.Number, required: false);
-                            phoneNumber.Type = collect.CollectField(fieldName: "Type", previousValue: phoneNumber.Type, required: false);
+                        address.StreetName = collect.CollectField(fieldName: "Street Name", previousValue: address.StreetName, required: false);
+                        address.City = collect.CollectField(fieldName: "City", previousValue: address.City, required: false);
+                        address.State = collect.CollectField(fieldName: "State", previousValue: address.State, required: false);
+                        address.ZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: address.ZipCode, required: false);
+                        address.Type = collect.CollectField(fieldName: "Type", previousValue: address.Type, required: false);
 
-                            contact.PhoneNumbers.Add(phoneNumber);
-                            break;
-                        case "4":
-                            var email = new Email();
-
-                            email.Text = collect.CollectField(fieldName: "Text", previousValue: email.Text, required: false);
-                            email.Type = collect.CollectField(fieldName: "Type", previousValue: email.Type, required: false);
-
-                            contact.Emails.Add(email);
-                            break;
-                        case "5":
-                            var address = new Address();
-
-                            address.StreetName = collect.CollectField(fieldName: "Street Name", previousValue: address.StreetName, required: false);
-                            address.City = collect.CollectField(fieldName: "City", previousValue: address.City, required: false);
-                            address.State = collect.CollectField(fieldName: "State", previousValue: address.State, required: false);
-                            address.ZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: address.ZipCode, required: false);
-                            address.Type = collect.CollectField(fieldName: "Type", previousValue: address.Type, required: false);
-
-                            contact.Addresses.Add(address);
-                            break;
-                        case "6":
-                            sql.CreateContact(contact);
-                            return;
-                    }
+                        contact.Addresses.Add(address);
+                        break;
+                    case "6":
+                        sql.CreateContact(contact);
+                        return;
                 }
             }
         }
@@ -195,6 +189,103 @@ namespace AddressBook
             Console.Write("" +
                 "0.=>Return to previous menu" +
                 "\n\nEnter the ID of the contact you wish to delete:");
+        }
+
+        public static void EditContact(Collect collect, SQL sql)
+        {
+
+            var ID = collect.CollectID("enter id of contact you'd like to edit.");
+
+
+            // Get contact
+            var contact = sql.GetContact(ID);
+
+            // Check if contact exists
+            if (contact != null)
+            {
+                // Edit contact
+                while (true)
+                {
+                    Console.Clear();
+
+                    //display
+                    Console.WriteLine("0.=>Back to Menu");
+                    Console.WriteLine($"1.FirstName: {contact.FirstName}");
+                    Console.WriteLine($"2.Last Name: {contact.LastName}");
+                    Console.Write($"3.Phone Number: ");
+                    foreach (var phoneNumbers in contact.PhoneNumbers)
+                    {
+                        Console.Write("" +
+                            $"Number:{phoneNumbers.Number} / Type:{phoneNumbers.Type}");
+                    }
+
+                    Console.Write($"\n4.Email: ");
+                    foreach (var Emails in contact.Emails)
+                    {
+                        Console.Write("" +
+                            $"Text:{Emails.Text} / Type:{Emails.Type}");
+                    }
+
+                    Console.WriteLine($"\n5.Address: ");
+                    foreach (var addresses in contact.Addresses)
+                    {
+                        Console.Write("" +
+                            $"-Street Name:{addresses.StreetName}" +
+                            $"\n-City:{addresses.City}" +
+                            $"\n-State:{addresses.State}" +
+                            $"\n-ZipCode:{addresses.ZipCode}\n");
+                    }
+                    
+
+                    Console.Write("\nNumber selected: ");
+                    var input = Console.ReadLine();
+
+                    //adding input to database once case is declared.
+                    switch (input)
+                    {
+                        case "0":
+                            Menu(collect, sql);
+                            break;
+                        case "1":
+                            contact.FirstName = collect.CollectField(fieldName: "First Name", previousValue: contact.FirstName, required: true);
+                            sql.UpdateFirstName(contact.ID, contact.FirstName);
+                            break;
+                        case "2":
+                            contact.LastName = collect.CollectField(fieldName: "Last Name", previousValue: contact.LastName, required: false);
+                            sql.UpdateLastName(contact.ID, contact.FirstName);
+                            break;
+                        case "3":
+                            var phoneNumber = new PhoneNumber();
+
+                            phoneNumber.Number = collect.CollectField(fieldName: "Number", previousValue: phoneNumber.Number, required: false);
+                            phoneNumber.Type = collect.CollectField(fieldName: "Type", previousValue: phoneNumber.Type, required: false);
+
+                            contact.PhoneNumbers.Add(phoneNumber);
+                            break;
+                        case "4":
+                            var email = new Email();
+
+                            email.Text = collect.CollectField(fieldName: "Text", previousValue: email.Text, required: false);
+                            email.Type = collect.CollectField(fieldName: "Type", previousValue: email.Type, required: false);
+
+                            contact.Emails.Add(email);
+                            break;
+                        case "5":
+                            var address = new Address();
+
+                            address.StreetName = collect.CollectField(fieldName: "Street Name", previousValue: address.StreetName, required: false);
+                            address.City = collect.CollectField(fieldName: "City", previousValue: address.City, required: false);
+                            address.State = collect.CollectField(fieldName: "State", previousValue: address.State, required: false);
+                            address.ZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: address.ZipCode, required: false);
+                            address.Type = collect.CollectField(fieldName: "Type", previousValue: address.Type, required: false);
+
+                            contact.Addresses.Add(address);
+                            break;
+                      
+                    }
+                }
+
+            }
         }
     }
 }
