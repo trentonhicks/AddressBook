@@ -7,12 +7,7 @@ namespace AddressBook
     class Contact
     {
         // ID
-        private int _id;
-        public int ID
-        {
-            get => _id != 0 ? _id : -1;
-            set => _id = value;
-        }
+        public int ID { get; set; }
 
         // First Name
         private string _firstName;
