@@ -82,20 +82,23 @@ namespace AddressBook
         }
 
         //Collects int and only int for ID//
-        public int CollectID(string msg, int userInput)
+        public int CollectID(string msg)
         {
-            var Input = Console.ReadLine();
-            Console.Write($"{msg} Enter Id. Int only: ");
+            
+            Console.Write($"{msg}: ");
             //If an int return user input//
             while (true)
             {
-                if (Input == "")
+                int number;
+                var Input = Console.ReadLine();
+                bool isNumber = int.TryParse(Input, out number);
+                if (isNumber)
                 {
-                    Console.WriteLine("Wrong Input! Int only!");
+                    return number;
                 }
                 else
                 {
-                    return userInput;
+                    Console.WriteLine("Wrong Input! Int only!");
                 }
             }
            
