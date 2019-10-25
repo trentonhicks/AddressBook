@@ -263,22 +263,22 @@ namespace AddressBook
             _connection.Close();
 
             // Addresses
-            InsertAddresses(contact);
+            InsertAddresses(contact, contact.Addresses);
 
             // Phone Numbers
             InsertPhoneNumbers(contact, contact.PhoneNumbers);
 
             // Emails
-            InsertEmails(contact);
+            InsertEmails(contact, contact.Emails);
         }
 
         /// <summary>
         /// Insert new phone numbers into an existing contact
         /// </summary>
         /// <param name="contact"></param>
-        public void InsertAddresses(Contact contact)
+        public void InsertAddresses(Contact contact, List<Address> addresses)
         {
-            foreach (var address in contact.Addresses)
+            foreach (var address in addresses)
             {
                 if(address.StreetName != "NULL" || address.City != "NULL" || address.State != "NULL" || address.ZipCode != "NULL" || address.Type != "NULL")
                 {
@@ -337,9 +337,9 @@ namespace AddressBook
             }
         }
 
-        public void InsertEmails(Contact contact)
+        public void InsertEmails(Contact contact, List<Email> emails)
         {
-            foreach (var email in contact.Emails)
+            foreach (var email in emails)
             {
                 if(email.Text != "NULL" || email.Type != "NULL")
                 {
@@ -409,7 +409,7 @@ namespace AddressBook
             _connection.Close();
         }
 
-        public void UpdateEmail(int FKID, string emailID, string email, string type)
+        public void UpdateEmail(int FKID, int emailID, string email, string type)
         {
             _connection.Open();
 
@@ -422,7 +422,7 @@ namespace AddressBook
 
         }
 
-        public void UpdateStreetName (int FKID, string streetNameID, string streetName)
+        public void UpdateStreetName (int FKID, int streetNameID, string streetName)
         {
             int ID;
 
@@ -437,7 +437,7 @@ namespace AddressBook
             _connection.Close();
         }
 
-        public void UpdateState(int FKID, string stateID, string state)
+        public void UpdateState(int FKID, int stateID, string state)
         {
 
             int ID;
@@ -453,7 +453,7 @@ namespace AddressBook
             _connection.Close();
         }
 
-        public void UpdateCity(int FKID, string address)
+        public void UpdateCity(int FKID, int cityID, string city)
         {
             int ID;
 
@@ -461,36 +461,101 @@ namespace AddressBook
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $@"SELECT City FROM Addresses WHERE ContactID = {FKID} AND City = '{address}'";
-
-                ID = Convert.ToInt32(command.ExecuteScalar().ToString());
-
-                command.CommandText = $@"UPDATE Addresses SET City = {address} WHERE ID = {ID}";
+                command.CommandText = $@"UPDATE Addresses SET City = '{city}' WHERE ContactID = {FKID} AND ID = {cityID}";
+                command.ExecuteNonQuery();
             }
 
             _connection.Close();
         }
        
-        public void UpdateZipCode(int FKID, string address)
+        public void UpdateZipCode(int FKID, string zipCode, int zipCodeID)
         {
-            int ID;
-
             _connection.Open();
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $@"SELECT ZipCode FROM Addresses WHERE ContactID = {FKID} AND ZipCode = '{address}'";
-
-                ID = Convert.ToInt32(command.ExecuteScalar().ToString());
-
-                command.CommandText = $@"UPDATE Addresses SET ZipCode = {address} WHERE ID = {ID}";
-
+                command.CommandText = $@"UPDATE Addresses SET ZipCode= '{zipCode}' WHERE ContactID = {FKID} AND ID = {zipCodeID}";
                 command.ExecuteNonQuery();
             }
 
             _connection.Close();
         }
 
+        public void UpdateAddressType(int FKID, string addressType, int addressTypeID)
+        {
+            _connection.Open();
 
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"UPDATE Addresses SET Type= '{addressType}' WHERE ContactID = {FKID} AND ID = {addressTypeID}";
+                command.ExecuteNonQuery();
+            }
+
+            _connection.Close();
+        }
+
+        /// <summary>
+        /// Deletes a phone number from the database
+        /// </summary>
+        /// <param name="FKID"></param>
+        /// <param name="phoneNumberID"></param>
+        public void DeletePhoneNumber(int FKID, int phoneNumberID)
+        {
+            _connection.Open();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"DELETE FROM PhoneNumbers WHERE ContactID = {FKID} AND ID = {phoneNumberID}";
+                command.ExecuteNonQuery();
+            }
+
+            _connection.Close();
+        }
+
+        /// <summary>
+        /// Deletes an email from the database
+        /// </summary>
+        /// <param name="FKID"></param>
+        /// <param name="emailID"></param>
+        public void DeleteEmail(int FKID, int emailID)
+        {
+            _connection.Open();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"DELETE FROM Emails WHERE ContactID = {FKID} AND ID = {emailID}";
+                command.ExecuteNonQuery();
+            }
+
+            _connection.Close();
+        }
+
+        public void DeleteAddress(int FKID, int addressID)
+        {
+            _connection.Open();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"DELETE FROM Addresses WHERE ContactID = {FKID} AND ID = {addressID}";
+                command.ExecuteNonQuery();
+            }
+
+            _connection.Close();
+        }
+
+        public void DeleteFullContact(int FKID, int contactID, int phoneNumberID, int emailID, int addressID)
+        {
+            _connection.Open();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"DELETE FROM Contacts WHERE ContactID = {FKID} AND ID = {contactID}";
+                command.CommandText = $@"DELETE FROM PhoneNumbers WHERE ContactID = {FKID} AND ID = {phoneNumberID}";
+                command.CommandText = $@"DELETE FROM Emails WHERE ContactID = {FKID} AND ID = {emailID}";
+                command.CommandText = $@"DELETE FROM Addresses WHERE ContactID = {FKID} AND ID = {addressID}";
+                command.ExecuteNonQuery();
+            }
+            _connection.Close();
+        }
     }
 }
