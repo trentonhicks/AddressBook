@@ -22,7 +22,7 @@ namespace AddressBook
                 while (true)
                 {
                     //Check to see if input is added to the required field.//
-                    Console.Write($"Press 0 to go back\n\n {fieldName}: ");
+                    Console.Write($"Press 0 to go back:\n\n{fieldName}: ");
                     userInput = Console.ReadLine();
                     if (userInput == "0")
                     {
@@ -30,6 +30,8 @@ namespace AddressBook
                     }
                     else if (userInput == "")
                     {
+
+
                         Console.WriteLine($"{fieldName} is required");
                     }
                     //If input is dectected in the required field than break the while loop.//
@@ -43,7 +45,7 @@ namespace AddressBook
             else
             {
                 //Collect info for user if not required.//
-                Console.Write($"{fieldName}: ");
+                Console.Write($"Press 0 to go back:\n\n {fieldName}: ");
                 userInput = Console.ReadLine();
                 if (userInput == "0")
                 {
@@ -52,6 +54,14 @@ namespace AddressBook
             }
             return userInput;
         }
+
+        //public string CollectAddress(string fieldName, string previousValue, bool required)
+        //{
+        //    Console.Clear();
+        //    var userInput = "";
+
+        //    if(userInput == "0")
+        //}
 
         //Collects string and converts it to an int for phone number.//
         public string CollectInt(string previousValue)

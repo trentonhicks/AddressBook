@@ -16,13 +16,16 @@ namespace AddressBook
         //This is the first menu that is presented to you
         public static void Menu(Collect collect, SQL sql)
         {
+            Console.Clear();
+
             while (true)
             {
                 Console.WriteLine("1.Create Contact: ");
 
                 Console.WriteLine("2.Contact List: ");
 
-                Console.Write("\nNumber selected: ");
+                Console.Write("Select an option:");
+
 
                 var input = Console.ReadLine();
 
@@ -53,8 +56,8 @@ namespace AddressBook
 
                 //display
                 Console.WriteLine("0.=>Back to Menu");
-                Console.WriteLine($"1.FirstName: {contact.FirstName}");
-                Console.WriteLine($"2.Last Name: {contact.LastName}");
+                Console.WriteLine($"1.FirstName: {(contact.FirstName == "No name" ? "" : contact.FirstName)}");
+                Console.WriteLine($"2.Last Name: {(contact.LastName == "NULL" ? "" : contact.LastName)}");
                 Console.Write($"3.Phone Number: ");
                 foreach (var phoneNumbers in contact.PhoneNumbers)
                 {
@@ -73,14 +76,14 @@ namespace AddressBook
                 foreach (var addresses in contact.Addresses)
                 {
                     Console.Write("" +
-                        $"-Street Name:{addresses.StreetName}" +
-                        $"\n-City:{addresses.City}" +
-                        $"\n-State:{addresses.State}" +
-                        $"\n-ZipCode:{addresses.ZipCode}\n");
+                        $"Street Name:{addresses.StreetName}" +
+                        $" / City:{addresses.City}" +
+                        $" / State:{addresses.State}" +
+                        $" / ZipCode:{addresses.ZipCode}\n");
                 }
                 Console.WriteLine("\n6.Save");
 
-                Console.Write("\nNumber selected: ");
+                Console.Write("\nSelect an option:");
 
                 var input = Console.ReadLine();
 
@@ -88,7 +91,8 @@ namespace AddressBook
                 switch (input)
                 {
                     case "0":
-                        Menu(collect, sql);
+                        Console.Clear();
+                        Main(new string[1]);
                         break;
                     case "1":
                         contact.FirstName = collect.CollectField(fieldName: "First Name", previousValue: contact.FirstName, required: true);
@@ -125,54 +129,96 @@ namespace AddressBook
                         break;
                     case "6":
                         sql.CreateContact(contact);
-                        return;
+                        CreateContact(collect, sql);
+                        break;
                 }
             }
         }
         public static void ContactListSelection()
         {
-            var collect = new Collect();
-            var sql = new SQL();
-            sql.DisplayContactsList();
-
-            Console.WriteLine("" +
-                "\n0.=>Back to Menu\n" +
-                "1.View/Edit\n" +
-                "2.Delete:\n");
-
-            Console.Write("Number Selected:");
-
-            var input = Console.ReadLine();
-
-
-            Console.Clear();
-
-            switch (input)
+            while (true)
             {
-                case "0":
-                    Menu(collect, sql);
-                    break;
-                case "1":
-                    EditContact(collect, sql);
-                    break;
-                case "2":
-                    Console.WriteLine("Delete");
-                    break;
+                Console.Clear();
+                var collect = new Collect();
+                var sql = new SQL();
+                sql.DisplayContactsList();
+
+                Console.WriteLine("" +
+                    "\n0.=>Back to Menu\n" +
+                    "1.View/Edit\n" +
+                    "2.Delete:\n");
+
+                Console.Write("\nSelect an option:");
+
+                var input = Console.ReadLine();
+
+
+                Console.Clear();
+
+                switch (input)
+                {
+                    case "0":
+                        return;
+                    case "1":
+                        EditContact(collect, sql);
+                        break;
+                    case "2":
+                        DeleteContact(collect, sql);
+                        break;
+                }
             }
         }
-        public static void DeleteContact()
+        public static void DeleteContact(Collect collect, SQL sql)
         {
-            var collect = new Collect();
+            while(true)
+            {
+                Console.Clear();
+                Console.WriteLine("" + "0.=>Previous menu");
 
-            Console.Write("" +
-                "0.=>Return to previous menu" +
-                "\n\nEnter the ID of the contact you wish to delete:");
+                sql.DisplayContactsList();
+
+                var ID = collect.CollectID("\nEnter the ID of the contact you want to delete");
+
+                if (ID != 0)
+                {
+                    var contact = sql.GetContact(ID);
+
+                    // If contact exists, delete it
+                    if (contact != null)
+                    {
+
+                        Console.WriteLine("Are you sure you want to delete?\n Press 1 for Yes: \n Press 2 to cancel: \n");
+
+                        Console.Write("Select: ");
+
+                        var userInput = Console.ReadLine();
+
+                        switch (userInput)
+                        {
+                            case "1":
+                                sql.DeleteFullContact(ID);
+                                return;
+                            case "2":
+
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
         }
 
         public static void EditContact(Collect collect, SQL sql)
         {
+
             sql.DisplayContactsList();
-            var ID = collect.CollectID("Enter id of contact you'd like to edit");
+
+            Console.WriteLine("0. =>Previous menu");
+
+            var ID = collect.CollectID("\nEnter ID of contact you'd like to edit"); //no option to go back
 
             // Get contact
             var contact = sql.GetContact(ID);
@@ -199,8 +245,7 @@ namespace AddressBook
                     switch (input)
                     {
                         case "0":
-                            Menu(collect, sql);
-                            break;
+                            return;
                         case "1":
                             contact.FirstName = collect.CollectField(fieldName: "First Name", previousValue: contact.FirstName, required: true);
                             sql.UpdateFirstName(contact.ID, contact.FirstName);
@@ -214,23 +259,16 @@ namespace AddressBook
                             contact = sql.GetContact(contact.ID);
                             break;
                         case "4":
-                            var email = new Email();
-
-                            email.Text = collect.CollectField(fieldName: "Text", previousValue: email.Text, required: false);
-                            email.Type = collect.CollectField(fieldName: "Type", previousValue: email.Type, required: false);
-
-                            contact.Emails.Add(email);
+                            
+                            EditEmails(collect, sql, contact);
+                            contact = sql.GetContact(contact.ID);
+                            
                             break;
                         case "5":
-                            var address = new Address();
 
-                            address.StreetName = collect.CollectField(fieldName: "Street Name", previousValue: address.StreetName, required: false);
-                            address.City = collect.CollectField(fieldName: "City", previousValue: address.City, required: false);
-                            address.State = collect.CollectField(fieldName: "State", previousValue: address.State, required: false);
-                            address.ZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: address.ZipCode, required: false);
-                            address.Type = collect.CollectField(fieldName: "Type", previousValue: address.Type, required: false);
+                            EditAddresses(collect, sql, contact);
+                            contact = sql.GetContact(contact.ID);
 
-                            contact.Addresses.Add(address);
                             break;
 
                     }
@@ -247,6 +285,8 @@ namespace AddressBook
         {
             while (true)
             {
+                Console.Clear();
+
                 Console.WriteLine("0. => Go back");
                 Console.WriteLine("add. add a new phone number");
                 Console.WriteLine("delete. delete a phone number");
@@ -286,22 +326,22 @@ namespace AddressBook
                     case "delete":
                         Console.Clear();
                         sql.DisplayPhoneNumbers(contact);
-                        var addressID = collect.CollectID("Enter the ID of the phone number you want to delete");
-                        sql.DeleteAddress(contact.ID, addressID);
+                        var phoneNumberID = collect.CollectID("Enter the ID of the phone number you want to delete");
+                        sql.DeletePhoneNumber(contact.ID, phoneNumberID);
                         contact = sql.GetContact(contact.ID);
                         break;
 
                     default:
                         // Check if input is number and output the phone number ID
                         bool isNumber;
-                        isNumber = int.TryParse(input, out int phoneNumberID);
+                        isNumber = int.TryParse(input, out int numberID);
 
                         // Edit existing number if user typed in phone number ID
                         if (isNumber)
                         {
-                            var phoneNumberNumber = collect.CollectField(fieldName: "Number", previousValue: contact.PhoneNumbers.Find(number => number.ID == phoneNumberID).Number, required: false);
-                            var phoneNumberType = collect.CollectField(fieldName: "Type", previousValue: contact.PhoneNumbers.Find(type => type.ID == phoneNumberID).Type, required: false);
-                            sql.UpdatePhoneNumber(contact.ID, phoneNumberID, phoneNumberNumber, phoneNumberType);
+                            var phoneNumberNumber = collect.CollectField(fieldName: "Number", previousValue: contact.PhoneNumbers.Find(number => number.ID == numberID).Number, required: false);
+                            var phoneNumberType = collect.CollectField(fieldName: "Type", previousValue: contact.PhoneNumbers.Find(type => type.ID == numberID).Type, required: false);
+                            sql.UpdatePhoneNumber(contact.ID, numberID, phoneNumberNumber, phoneNumberType);
                             contact = sql.GetContact(contact.ID);
                         }
 
@@ -313,6 +353,8 @@ namespace AddressBook
         {
             while (true)
             {
+                Console.Clear();
+
                 Console.WriteLine("0. => Go back");
                 Console.WriteLine("add. add a new email");
                 Console.WriteLine("delete. delete an email");
@@ -320,7 +362,7 @@ namespace AddressBook
 
                 sql.DisplayEmails(contact);
 
-                Console.Write("Enter the ID of the email you wish you wish to edit");
+                Console.Write("Enter the ID of the email you wish you wish to edit:");
 
                 var input = Console.ReadLine();
 
@@ -344,14 +386,14 @@ namespace AddressBook
 
                         // Insert number
                         sql.InsertEmails(contact, emails); // check insertemails
-
+                        contact = sql.GetContact(contact.ID);
                         break;
 
                     case "delete":
                         Console.Clear();
-                        sql.DisplayAddresses(contact);
-                        var addressID = collect.CollectID("Enter the ID of the address you want to delete");
-                        sql.DeleteAddress(contact.ID, addressID);
+                        sql.DisplayEmails(contact);
+                        var deleteEmailID = collect.CollectID("Enter the ID of the email you want to delete");
+                        sql.DeleteEmail(contact.ID, deleteEmailID);
                         contact = sql.GetContact(contact.ID);
                         break;
 
@@ -377,6 +419,8 @@ namespace AddressBook
         {
             while (true)
             {
+                Console.Clear();
+
                 Console.WriteLine("0. => Go back");
                 Console.WriteLine("add. add a new address");
                 Console.WriteLine("delete. delete an address");
@@ -412,6 +456,7 @@ namespace AddressBook
 
                         // Insert number
                         sql.InsertAddresses(contact, addresses);
+                        contact = sql.GetContact(contact.ID);
                         break;
 
                     case "delete":

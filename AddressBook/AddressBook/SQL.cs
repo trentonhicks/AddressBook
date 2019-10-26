@@ -543,19 +543,39 @@ namespace AddressBook
             _connection.Close();
         }
 
-        public void DeleteFullContact(int FKID, int contactID, int phoneNumberID, int emailID, int addressID)
+        public void DeleteContactUser(int ID)
         {
             _connection.Open();
 
             using (var command = _connection.CreateCommand())
             {
-                command.CommandText = $@"DELETE FROM Contacts WHERE ContactID = {FKID} AND ID = {contactID}";
-                command.CommandText = $@"DELETE FROM PhoneNumbers WHERE ContactID = {FKID} AND ID = {phoneNumberID}";
-                command.CommandText = $@"DELETE FROM Emails WHERE ContactID = {FKID} AND ID = {emailID}";
-                command.CommandText = $@"DELETE FROM Addresses WHERE ContactID = {FKID} AND ID = {addressID}";
+                command.CommandText = $@"DELETE FROM Contacts WHERE ID = {ID}";
                 command.ExecuteNonQuery();
             }
+
             _connection.Close();
+        }
+
+        public void DeleteFullContact(int ID)
+        {
+            _connection.Open();
+
+            using (var command = _connection.CreateCommand())
+            {
+                command.CommandText = $@"DELETE FROM Addresses WHERE ContactID = {ID}";
+                command.ExecuteNonQuery();
+
+                command.CommandText = $@"DELETE FROM PhoneNumbers WHERE ContactID = {ID}";
+                command.ExecuteNonQuery();
+
+                command.CommandText = $@"DELETE FROM Emails WHERE ContactID = {ID}";
+                command.ExecuteNonQuery();
+
+            }
+
+            _connection.Close();
+
+            DeleteContactUser(ID);
         }
     }
 }
