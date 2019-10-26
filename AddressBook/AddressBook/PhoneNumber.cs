@@ -18,7 +18,7 @@ namespace AddressBook
         private string _number;
         public string Number
         {
-            get => _number != "" ? _number : "NULL";
+            get => _number != "" && _number != null ? _number : "NULL";
             set => _number = value;
         }
 
@@ -26,7 +26,7 @@ namespace AddressBook
         private string _type;
         public string Type
         {
-            get => _type != "" ? _type : "NULL";
+            get => _type != "" && _type != null ? _type : "NULL";
             set => _type = value;
         }
 

@@ -45,7 +45,7 @@ namespace AddressBook
             else
             {
                 //Collect info for user if not required.//
-                Console.Write($"Press 0 to go back:\n\n {fieldName}: ");
+                Console.Write($"{fieldName}: ");
                 userInput = Console.ReadLine();
                 if (userInput == "0")
                 {

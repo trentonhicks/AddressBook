@@ -10,6 +10,7 @@ namespace AddressBook
         private int _id;
         public int ID
         {
+
             get => _id != 0 ? _id : -1;
             set => _id = value;
         }
@@ -18,7 +19,7 @@ namespace AddressBook
         private string _text;
         public string Text
         {
-            get => _text != "" ? _text : "NULL";
+            get => _text != "" && _text != null ? _text : "NULL";
             set => _text = value;
         }
 
@@ -26,7 +27,7 @@ namespace AddressBook
         private string _type;
         public string Type
         {
-            get => _type != "" ? _type : "NULL";
+            get => _type != "" && _type != null ? _type : "NULL";
             set => _type = value;
         }
     }

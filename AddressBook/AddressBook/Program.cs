@@ -24,7 +24,7 @@ namespace AddressBook
 
                 Console.WriteLine("2.Contact List: ");
 
-                Console.Write("Select an option:");
+                Console.Write("\nSelect an option:");
 
 
                 var input = Console.ReadLine();
@@ -125,11 +125,14 @@ namespace AddressBook
                         address.ZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: address.ZipCode, required: false);
                         address.Type = collect.CollectField(fieldName: "Type", previousValue: address.Type, required: false);
 
+                       
+
                         contact.Addresses.Add(address);
                         break;
                     case "6":
                         sql.CreateContact(contact);
                         CreateContact(collect, sql);
+                        break;
                         break;
                 }
             }
@@ -186,7 +189,7 @@ namespace AddressBook
                     // If contact exists, delete it
                     if (contact != null)
                     {
-
+                        Console.Clear();
                         Console.WriteLine("Are you sure you want to delete?\n Press 1 for Yes: \n Press 2 to cancel: \n");
 
                         Console.Write("Select: ");
@@ -213,7 +216,6 @@ namespace AddressBook
 
         public static void EditContact(Collect collect, SQL sql)
         {
-
             sql.DisplayContactsList();
 
             Console.WriteLine("0. =>Previous menu");
@@ -239,6 +241,7 @@ namespace AddressBook
                     Console.Write($"\n4.Emails: {contact.FirstName} has {contact.Emails.Count} email(s)");
                     Console.WriteLine($"\n5.Addresses: {contact.FirstName} has {contact.Addresses.Count} address(es)");
 
+                    Console.Write("\nSelect an option: ");
                     var input = Console.ReadLine();
 
                     //adding input to database once case is declared.
@@ -423,12 +426,12 @@ namespace AddressBook
 
                 Console.WriteLine("0. => Go back");
                 Console.WriteLine("add. add a new address");
-                Console.WriteLine("delete. delete an address");
+                Console.WriteLine("delete. delete an address\n");
 
 
                 sql.DisplayAddresses(contact);
 
-                Console.Write("Enter the ID of the address you wish you wish to edit:");
+                Console.Write("\nEnter the ID of the address you wish you wish to edit:");
 
                 var input = Console.ReadLine();
 
@@ -489,6 +492,54 @@ namespace AddressBook
                         }
 
                         break;
+                }
+            }
+        }
+
+        public Address CollectAddress(Contact contact, Collect collect)
+        {
+            while (true)
+            {
+                var address = new Address();
+
+                Console.WriteLine("1.Street Name: ");
+
+                Console.WriteLine("2.City: ");
+
+                Console.WriteLine("3.State: ");
+
+                Console.WriteLine("4.Zip Code: ");
+
+                Console.WriteLine("5.Type: ");
+
+                Console.Write("\nSelect an option: ");
+
+                var inputAddress = Console.ReadLine();
+
+                if (inputAddress == "1")
+                {
+                    address.StreetName = collect.CollectField(fieldName: "Street Name", previousValue: address.StreetName, required: false);
+                }
+                else if (inputAddress == "2")
+                {
+                    address.City = collect.CollectField(fieldName: "City", previousValue: address.City, required: false);
+                }
+                else if (inputAddress == "3")
+                {
+                    address.State = collect.CollectField(fieldName: "State", previousValue: address.State, required: false);
+                }
+                else if (inputAddress == "4")
+                {
+                    address.ZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: address.ZipCode, required: false);
+                }
+                else if (inputAddress == "5")
+                {
+                    address.Type = collect.CollectField(fieldName: "Type", previousValue: address.Type, required: false);
+                }
+
+                if (inputAddress == "0")
+                {
+                    return address;
                 }
             }
         }

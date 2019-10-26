@@ -217,7 +217,7 @@ namespace AddressBook
         {
             foreach (var address in contact.Addresses)
             {
-                Console.WriteLine($"{address.ID}:{address.StreetName}\n{address.State}\n{address.ZipCode}\n{address.Type}");
+                Console.WriteLine($"{address.ID}: {address.StreetName}, {address.City}, {address.State} {address.ZipCode}\nType: {address.Type}\n");
             }
         }
 
