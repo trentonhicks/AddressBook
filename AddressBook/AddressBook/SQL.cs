@@ -9,7 +9,7 @@ namespace AddressBook
     class SQL
     {
         // SQL connection string
-        private static SqlConnection _connection = new SqlConnection(@"Data Source=.; Initial Catalog=AddressBook2.0; Integrated Security=SSPI;");
+        private static SqlConnection _connection = new SqlConnection(@"Server=tcp:codeflip.database.windows.net,1433;Initial Catalog=squeakyninja;Persist Security Info=False;User ID=steve;Password=Redcoin1!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
         /// <summary>
         /// Gets all the contacts from the database
