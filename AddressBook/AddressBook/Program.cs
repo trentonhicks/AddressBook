@@ -9,6 +9,13 @@ namespace AddressBook
     {
         static void Main(string[] args)
         {
+            Menu();
+        }
+
+        //This is the first menu that is presented to you
+        public static void Menu()
+        {
+            // Link to configuration file
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
@@ -18,12 +25,6 @@ namespace AddressBook
             var collect = new Collect();
             var sql = new SQL(configuration.GetConnectionString("Storage"));
 
-            Menu(collect, sql);
-        }
-
-        //This is the first menu that is presented to you
-        public static void Menu(Collect collect, SQL sql)
-        {
             Console.Clear();
 
             while (true)
