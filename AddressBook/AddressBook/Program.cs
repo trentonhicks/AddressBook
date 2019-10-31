@@ -29,9 +29,9 @@ namespace AddressBook
 
             while (true)
             {
-                Console.WriteLine("1.Create Contact: ");
+                Console.WriteLine("1.Create Contact");
 
-                Console.WriteLine("2.Contact List: ");
+                Console.WriteLine("2.Contact List");
 
                 Console.Write("\nSelect an option:");
 
@@ -64,8 +64,8 @@ namespace AddressBook
                 Console.Clear();
 
                 //display
-                Console.WriteLine("0.=>Back to Menu");
-                Console.WriteLine($"1.FirstName: {(contact.FirstName == "No name" ? "" : contact.FirstName)}");
+                Console.WriteLine("0.=>Previous Menu");
+                Console.WriteLine($"\n1.FirstName: {(contact.FirstName == "No name" ? "" : contact.FirstName)}");
                 Console.WriteLine($"2.Last Name: {(contact.LastName == "NULL" ? "" : contact.LastName)}");
                 Console.Write($"3.Phone Number: ");
                 foreach (var phoneNumbers in contact.PhoneNumbers)
@@ -81,7 +81,7 @@ namespace AddressBook
                         $"Text:{Emails.Text} / Type:{Emails.Type}");
                 }
 
-                Console.WriteLine($"\n5.Address: ");
+                Console.Write($"\n5.Address: ");
                 foreach (var addresses in contact.Addresses)
                 {
                     Console.Write("" +
@@ -90,7 +90,7 @@ namespace AddressBook
                         $" / State:{addresses.State}" +
                         $" / ZipCode:{addresses.ZipCode}\n");
                 }
-                Console.WriteLine("\n6.Save");
+                Console.WriteLine("\n\n6.Save");
 
                 Console.Write("\nSelect an option:");
 
@@ -134,7 +134,7 @@ namespace AddressBook
                         address.ZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: address.ZipCode, required: false);
                         address.Type = collect.CollectField(fieldName: "Type", previousValue: address.Type, required: false);
 
-                       
+
 
                         contact.Addresses.Add(address);
                         break;
@@ -152,10 +152,11 @@ namespace AddressBook
                 Console.Clear();
                 DisplayContactsList(sql);
 
-                Console.WriteLine("" +
-                    "\n0.=>Back to Menu\n" +
-                    "1.View/Edit\n" +
-                    "2.Delete:\n");
+                Console.WriteLine("\n0.=>Previous Menu");
+                Console.WriteLine("\n1.View/Edit");
+                Console.WriteLine("\n2.Delete");
+
+
 
                 Console.Write("\nSelect an option:");
 
@@ -177,15 +178,298 @@ namespace AddressBook
                 }
             }
         }
-        public static void DeleteContact(Collect collect, SQL sql)
+
+        public static void EditContact(Collect collect, SQL sql)
         {
-            while(true)
+            Console.WriteLine("0.=>Previous Menu\n");
+
+            DisplayContactsList(sql);
+
+
+            var ID = collect.CollectID("\nEnter ID of contact you'd like to edit"); //no option to go back
+
+            // Get contact
+            var contact = sql.GetContact(ID);
+
+            // Check if contact exists
+            if (contact != null)
+            {
+                // Edit contact
+                while (true)
+                {
+                    Console.Clear();
+
+                    //display
+                    Console.WriteLine("0.=>Previous Menu");
+                    Console.WriteLine($"\n1.First Name: {contact.FirstName}");
+                    Console.WriteLine($"2.Last Name: {contact.LastName}");
+                    Console.WriteLine($"3.Phone Numbers: {contact.FirstName} has {contact.PhoneNumbers.Count} number(s)");
+                    Console.WriteLine($"4.Emails: {contact.FirstName} has {contact.Emails.Count} email(s)");
+                    Console.WriteLine($"5.Addresses: {contact.FirstName} has {contact.Addresses.Count} address(es)");
+
+                    Console.Write("\nSelect an option: ");
+                    var input = Console.ReadLine();
+
+                    //adding input to database once case is declared.
+                    switch (input)
+                    {
+
+                        case "0":
+                            return;
+                        case "1":
+                            contact.FirstName = collect.CollectField(fieldName: "First Name", previousValue: contact.FirstName, required: true);
+                            sql.UpdateFirstName(contact.ID, contact.FirstName);
+                            break;
+                        case "2":
+                            contact.LastName = collect.CollectField(fieldName: "Last Name", previousValue: contact.LastName, required: false);
+                            sql.UpdateLastName(contact.ID, contact.LastName);
+                            break;
+                        case "3":
+                            contact = sql.GetContact(contact.ID);
+                            EditPhoneNumbers(collect, sql, contact);
+                            break;
+                        case "4":
+                            contact = sql.GetContact(contact.ID);
+                            EditEmails(collect, sql, contact);
+                            break;
+                        case "5":
+                            contact = sql.GetContact(contact.ID);
+                            EditAddresses(collect, sql, contact);
+                            break;
+
+                    }
+                }
+            }
+
+            // Contact doesn't exist
+            else
+            {
+                Console.WriteLine("Contact doesn't exist");
+            }
+        }
+        public static void EditPhoneNumbers(Collect collect, SQL sql, Contact contact)
+        {
+            while (true)
             {
                 Console.Clear();
-                Console.WriteLine("" + "0.=>Previous menu");
+                DisplayPhoneNumbers(contact);
 
+                Console.WriteLine("\n\n0.=>Previous Menu");
+                Console.WriteLine("\n1.Add a new phone number");
+                Console.WriteLine("\n2.Delete a phone number");
+
+
+                Console.Write("\nSelect an option: ");
+
+                //Console.WriteLine("\nEnter the ID of the number you wish you wish to edit");
+
+                var input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "0":
+                        Console.Clear();
+                        return;
+                    case "1"://Add number
+                        // Store new numbers in a list
+                        var phoneNumbers = new List<PhoneNumber>();
+
+                        // Create new number and collect fields
+                        var phoneNumber = new PhoneNumber()
+                        {
+                            Number = collect.CollectField(fieldName: "Number", previousValue: "", required: false),
+                            Type = collect.CollectField(fieldName: "Type", previousValue: "", required: false)
+                        };
+
+                        // Add number to list
+                        phoneNumbers.Add(phoneNumber);
+
+                        // Insert number
+                        sql.InsertPhoneNumbers(contact, phoneNumbers);
+                        contact = sql.GetContact(contact.ID);
+
+                        break;
+
+                    case "2"://Delete number
+                        Console.Clear();
+
+                        Console.WriteLine("0.=>Previous Menu\n");
+                        DisplayPhoneNumbers(contact);
+
+                        var phoneNumberID = collect.CollectID("\nEnter the ID of the phone number you want to delete");
+                        sql.DeletePhoneNumber(contact.ID, phoneNumberID);
+                        contact = sql.GetContact(contact.ID);
+                        break;
+
+                    default:
+                        // Check if input is number and output the phone number ID
+                        bool isNumber;
+                        isNumber = int.TryParse(input, out int numberID);
+
+                        // Edit existing number if user typed in phone number ID
+                        if (isNumber)
+                        {
+                            var phoneNumberNumber = collect.CollectField(fieldName: "Number", previousValue: contact.PhoneNumbers.Find(number => number.ID == numberID).Number, required: false);
+                            var phoneNumberType = collect.CollectField(fieldName: "Type", previousValue: contact.PhoneNumbers.Find(type => type.ID == numberID).Type, required: false);
+                            sql.UpdatePhoneNumber(contact.ID, numberID, phoneNumberNumber, phoneNumberType);
+                            contact = sql.GetContact(contact.ID);
+                        }
+
+                        break;
+                }
+            }
+        }
+        public static void EditEmails(Collect collect, SQL sql, Contact contact)
+        {
+            while (true)
+            {
+                Console.Clear();
+                DisplayEmails(contact);
+
+                Console.WriteLine("\n0.=>Previous Menu");
+                Console.WriteLine("\n1.Add a new email");
+                Console.WriteLine("\n2.Delete an email");
+
+
+                Console.Write("\nSelect an option: ");
+
+                var input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "0":
+                        Console.Clear();
+                        return;
+
+                    case "1":
+                        // Store new numbers in a list
+                        var emails = new List<Email>();
+
+                        // Create new number and collect fields
+                        var email = new Email()
+                        {
+                            Text = collect.CollectField(fieldName: "Text", previousValue: "", required: false),
+                            Type = collect.CollectField(fieldName: "Type", previousValue: "", required: false)
+                        };
+
+                        emails.Add(email);
+
+                        // Insert number
+                        sql.InsertEmails(contact, emails); // check insertemails
+                        contact = sql.GetContact(contact.ID);
+                        break;
+
+                    case "2":
+                        Console.Clear();
+                        Console.WriteLine("0.=>Previous Menu\n");
+                        DisplayEmails(contact);
+                        var deleteEmailID = collect.CollectID("\nEnter the ID of the email you want to delete");
+                        sql.DeleteEmail(contact.ID, deleteEmailID);
+                        contact = sql.GetContact(contact.ID);
+                        break;
+
+                    default:
+                        // Check if input is number and output the email ID
+                        bool isNumber;
+                        isNumber = int.TryParse(input, out int emailID);
+
+                        // Edit existing email if user typed in email ID
+                        if (isNumber)
+                        {
+                            var emailText = collect.CollectField(fieldName: "text", previousValue: contact.Emails.Find(text => text.ID == emailID).Text, required: false);
+                            var emailType = collect.CollectField(fieldName: "Type", previousValue: contact.Emails.Find(type => type.ID == emailID).Type, required: false);
+                            sql.UpdateEmail(contact.ID, emailID, emailText, emailType);
+                            contact = sql.GetContact(contact.ID);
+                        }
+
+                        break;
+                }
+            }
+        }
+        public static void EditAddresses(Collect collect, SQL sql, Contact contact)
+        {
+            while (true)
+            {
+                Console.Clear();
+                DisplayAddresses(contact);
+
+                Console.WriteLine("\n0.=>Previous Menu");
+                Console.WriteLine("\n1.Add a new address");
+                Console.WriteLine("\n2.Delete an address");
+
+                Console.Write("\nSelect an option: ");
+
+                var input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "0":
+                        Console.Clear();
+                        return;
+
+                    case "1":
+                        // Store new numbers in a list
+                        var addresses = new List<Address>();
+
+                        // Create new number and collect fields
+                        var address = new Address()
+                        {
+                            StreetName = collect.CollectField(fieldName: "Street Name", previousValue: "", required: false),
+                            City = collect.CollectField(fieldName: "City", previousValue: "", required: false),
+                            State = collect.CollectField(fieldName: "State", previousValue: "", required: false),
+                            ZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: "", required: false),
+                            Type = collect.CollectField(fieldName: "Type", previousValue: "", required: false),
+                        };
+
+                        addresses.Add(address);
+
+                        // Insert number
+                        sql.InsertAddresses(contact, addresses);
+                        contact = sql.GetContact(contact.ID);
+                        break;
+
+                    case "2":
+                        Console.Clear();
+                        Console.WriteLine("0.=>Previous Menu\n");
+                        DisplayAddresses(contact);
+                        var id = collect.CollectID("Enter the ID of the address you want to delete");
+                        sql.DeleteAddress(contact.ID, id);
+                        contact = sql.GetContact(contact.ID);
+                        break;
+
+                    default:
+                        // Check if input is number and output the address ID
+                        bool isNumber;
+                        isNumber = int.TryParse(input, out int addressID);
+
+                        // Edit existing address if user typed in address ID
+                        if (isNumber)
+                        {
+                            var addressStreetName = collect.CollectField(fieldName: "StreetName", previousValue: contact.Addresses.Find(streetName => streetName.ID == addressID).StreetName, required: false);
+                            var addressCity = collect.CollectField(fieldName: "City", previousValue: contact.Addresses.Find(city => city.ID == addressID).City, required: false);
+                            var addressState = collect.CollectField(fieldName: "State", previousValue: contact.Addresses.Find(state => state.ID == addressID).State, required: false);
+                            var addressZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: contact.Addresses.Find(zipCode => zipCode.ID == addressID).ZipCode, required: false);
+                            var addressType = collect.CollectField(fieldName: "Type", previousValue: contact.Addresses.Find(type => type.ID == addressID).Type, required: false);
+
+                            sql.UpdateStreetName(contact.ID, addressID, addressStreetName);
+                            sql.UpdateCity(contact.ID, addressID, addressCity);
+                            sql.UpdateState(contact.ID, addressID, addressState);
+                            sql.UpdateZipCode(contact.ID, addressZipCode, addressID);
+                            sql.UpdateAddressType(contact.ID, addressType, addressID);
+                            contact = sql.GetContact(contact.ID);
+                        }
+
+                        break;
+                }
+            }
+        }
+        public static void DeleteContact(Collect collect, SQL sql)
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("0.=>Previous Menu\n");
                 DisplayContactsList(sql);
-
                 var ID = collect.CollectID("\nEnter the ID of the contact you want to delete");
 
                 if (ID != 0)
@@ -219,306 +503,23 @@ namespace AddressBook
                 }
             }
         }
-
-        public static void EditContact(Collect collect, SQL sql)
-        {
-            DisplayContactsList(sql);
-
-            Console.WriteLine("0. =>Previous menu");
-
-            var ID = collect.CollectID("\nEnter ID of contact you'd like to edit"); //no option to go back
-
-            // Get contact
-            var contact = sql.GetContact(ID);
-
-            // Check if contact exists
-            if (contact != null)
-            {
-                // Edit contact
-                while (true)
-                {
-                    Console.Clear();
-
-                    //display
-                    Console.WriteLine("0.=>Back to Menu");
-                    Console.WriteLine($"1.FirstName: {contact.FirstName}");
-                    Console.WriteLine($"2.Last Name: {contact.LastName}");
-                    Console.Write($"3.Phone Numbers: {contact.FirstName} has {contact.PhoneNumbers.Count} number(s)");
-                    Console.Write($"\n4.Emails: {contact.FirstName} has {contact.Emails.Count} email(s)");
-                    Console.WriteLine($"\n5.Addresses: {contact.FirstName} has {contact.Addresses.Count} address(es)");
-
-                    Console.Write("\nSelect an option: ");
-                    var input = Console.ReadLine();
-
-                    //adding input to database once case is declared.
-                    switch (input)
-                    {
-                        case "0":
-                            return;
-                        case "1":
-                            contact.FirstName = collect.CollectField(fieldName: "First Name", previousValue: contact.FirstName, required: true);
-                            sql.UpdateFirstName(contact.ID, contact.FirstName);
-                            break;
-                        case "2":
-                            contact.LastName = collect.CollectField(fieldName: "Last Name", previousValue: contact.LastName, required: false);
-                            sql.UpdateLastName(contact.ID, contact.LastName);
-                            break;
-                        case "3":
-                            EditPhoneNumbers(collect, sql, contact);
-                            contact = sql.GetContact(contact.ID);
-                            break;
-                        case "4":
-                            
-                            EditEmails(collect, sql, contact);
-                            contact = sql.GetContact(contact.ID);
-                            
-                            break;
-                        case "5":
-
-                            EditAddresses(collect, sql, contact);
-                            contact = sql.GetContact(contact.ID);
-
-                            break;
-
-                    }
-                }
-            }
-
-            // Contact doesn't exist
-            else
-            {
-                Console.WriteLine("Contact doesn't exist");
-            }
-        }
-        public static void EditPhoneNumbers(Collect collect, SQL sql, Contact contact)
-        {
-            while (true)
-            {
-                Console.Clear();
-
-                Console.WriteLine("0. => Go back");
-                Console.WriteLine("add. add a new phone number");
-                Console.WriteLine("delete. delete a phone number");
-
-
-                DisplayPhoneNumbers(contact);
-
-                Console.WriteLine("Enter the ID of the number you wish you wish to edit");
-
-                var input = Console.ReadLine();
-
-                switch (input)
-                {
-                    case "0":
-                        Console.Clear();
-                        return;
-                    case "add":
-                        // Store new numbers in a list
-                        var phoneNumbers = new List<PhoneNumber>();
-
-                        // Create new number and collect fields
-                        var phoneNumber = new PhoneNumber()
-                        {
-                            Number = collect.CollectField(fieldName: "Number", previousValue: "", required: false),
-                            Type = collect.CollectField(fieldName: "Type", previousValue: "", required: false)
-                        };
-
-                        // Add number to list
-                        phoneNumbers.Add(phoneNumber);
-
-                        // Insert number
-                        sql.InsertPhoneNumbers(contact, phoneNumbers);
-                        contact = sql.GetContact(contact.ID);
-
-                        break;
-
-                    case "delete":
-                        Console.Clear();
-                        DisplayPhoneNumbers(contact);
-                        var phoneNumberID = collect.CollectID("Enter the ID of the phone number you want to delete");
-                        sql.DeletePhoneNumber(contact.ID, phoneNumberID);
-                        contact = sql.GetContact(contact.ID);
-                        break;
-
-                    default:
-                        // Check if input is number and output the phone number ID
-                        bool isNumber;
-                        isNumber = int.TryParse(input, out int numberID);
-
-                        // Edit existing number if user typed in phone number ID
-                        if (isNumber)
-                        {
-                            var phoneNumberNumber = collect.CollectField(fieldName: "Number", previousValue: contact.PhoneNumbers.Find(number => number.ID == numberID).Number, required: false);
-                            var phoneNumberType = collect.CollectField(fieldName: "Type", previousValue: contact.PhoneNumbers.Find(type => type.ID == numberID).Type, required: false);
-                            sql.UpdatePhoneNumber(contact.ID, numberID, phoneNumberNumber, phoneNumberType);
-                            contact = sql.GetContact(contact.ID);
-                        }
-
-                        break;
-                }
-            }
-        }
-        public static void EditEmails(Collect collect, SQL sql, Contact contact)
-        {
-            while (true)
-            {
-                Console.Clear();
-
-                Console.WriteLine("0. => Go back");
-                Console.WriteLine("add. add a new email");
-                Console.WriteLine("delete. delete an email");
-
-
-                DisplayEmails(contact);
-
-                Console.Write("Enter the ID of the email you wish you wish to edit:");
-
-                var input = Console.ReadLine();
-
-                switch (input)
-                {
-                    case "0":
-                        Console.Clear();
-                        return;
-                    case "add":
-                        // Store new numbers in a list
-                        var emails = new List<Email>();
-
-                        // Create new number and collect fields
-                        var email = new Email()
-                        {
-                            Text = collect.CollectField(fieldName: "Text", previousValue: "", required: false),
-                            Type = collect.CollectField(fieldName: "Type", previousValue: "", required: false)
-                        };
-
-                        emails.Add(email);
-
-                        // Insert number
-                        sql.InsertEmails(contact, emails); // check insertemails
-                        contact = sql.GetContact(contact.ID);
-                        break;
-
-                    case "delete":
-                        Console.Clear();
-                        DisplayEmails(contact);
-                        var deleteEmailID = collect.CollectID("Enter the ID of the email you want to delete");
-                        sql.DeleteEmail(contact.ID, deleteEmailID);
-                        contact = sql.GetContact(contact.ID);
-                        break;
-
-                    default:
-                        // Check if input is number and output the email ID
-                        bool isNumber;
-                        isNumber = int.TryParse(input, out int emailID);
-
-                        // Edit existing email if user typed in email ID
-                        if (isNumber)
-                        {
-                            var emailText = collect.CollectField(fieldName: "text", previousValue: contact.Emails.Find(text => text.ID == emailID).Text, required: false);
-                            var emailType = collect.CollectField(fieldName: "Type", previousValue: contact.Emails.Find(type => type.ID == emailID).Type, required: false);
-                            sql.UpdateEmail(contact.ID, emailID, emailText, emailType);
-                            contact = sql.GetContact(contact.ID);
-                        }
-
-                        break;
-                }
-            }
-        }
-        public static void EditAddresses(Collect collect, SQL sql, Contact contact)
-        {
-            while (true)
-            {
-                Console.Clear();
-
-                Console.WriteLine("0. => Go back");
-                Console.WriteLine("add. add a new address");
-                Console.WriteLine("delete. delete an address\n");
-
-
-                DisplayAddresses(contact);
-
-                Console.Write("\nEnter the ID of the address you wish you wish to edit:");
-
-                var input = Console.ReadLine();
-
-                switch (input)
-                {
-                    case "0":
-                        Console.Clear();
-                        return;
-
-                    case "add":
-                        // Store new numbers in a list
-                        var addresses = new List<Address>();
-
-                        // Create new number and collect fields
-                        var address = new Address()
-                        {
-                            StreetName = collect.CollectField(fieldName: "Street Name", previousValue: "", required: false),
-                            City = collect.CollectField(fieldName: "City", previousValue: "", required: false),
-                            State = collect.CollectField(fieldName: "State", previousValue: "", required: false),
-                            ZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: "", required: false),
-                            Type = collect.CollectField(fieldName: "Type", previousValue: "", required: false),
-                        };
-
-                        addresses.Add(address);
-
-                        // Insert number
-                        sql.InsertAddresses(contact, addresses);
-                        contact = sql.GetContact(contact.ID);
-                        break;
-
-                    case "delete":
-                        DisplayAddresses(contact);
-                        var id = collect.CollectID("Enter the ID of the address you want to delete");
-                        sql.DeleteAddress(contact.ID, id);
-                        contact = sql.GetContact(contact.ID);
-                        break;
-
-                    default:
-                        // Check if input is number and output the address ID
-                        bool isNumber;
-                        isNumber = int.TryParse(input, out int addressID);
-
-                        // Edit existing address if user typed in address ID
-                        if (isNumber)
-                        {
-                            var addressStreetName = collect.CollectField(fieldName: "StreetName", previousValue: contact.Addresses.Find(streetName => streetName.ID == addressID).StreetName, required: false);
-                            var addressCity = collect.CollectField(fieldName: "City", previousValue: contact.Addresses.Find(city => city.ID == addressID).City, required: false);
-                            var addressState = collect.CollectField(fieldName: "State", previousValue: contact.Addresses.Find(state => state.ID == addressID).State, required: false);
-                            var addressZipCode = collect.CollectField(fieldName: "ZipCode", previousValue: contact.Addresses.Find(zipCode => zipCode.ID == addressID).ZipCode, required: false);
-                            var addressType = collect.CollectField(fieldName: "Type", previousValue: contact.Addresses.Find(type => type.ID == addressID).Type, required: false);
-
-                            sql.UpdateStreetName(contact.ID, addressID, addressStreetName);
-                            sql.UpdateCity(contact.ID, addressID, addressCity);
-                            sql.UpdateState(contact.ID, addressID, addressState);
-                            sql.UpdateZipCode(contact.ID, addressZipCode, addressID);
-                            sql.UpdateAddressType(contact.ID, addressType, addressID);
-                            contact = sql.GetContact(contact.ID);
-                        }
-
-                        break;
-                }
-            }
-        }
-
         public Address CollectAddress(Contact contact, Collect collect)
         {
             while (true)
             {
                 var address = new Address();
 
-                Console.WriteLine("1.Street Name: ");
+                Console.WriteLine("1.Street Name");
 
-                Console.WriteLine("2.City: ");
+                Console.WriteLine("2.City");
 
-                Console.WriteLine("3.State: ");
+                Console.WriteLine("3.State");
 
-                Console.WriteLine("4.Zip Code: ");
+                Console.WriteLine("4.Zip Code");
 
-                Console.WriteLine("5.Type: ");
+                Console.WriteLine("5.Type");
 
-                Console.Write("\nSelect an option: ");
+                Console.Write("\nSelect an option");
 
                 var inputAddress = Console.ReadLine();
 
@@ -583,7 +584,7 @@ namespace AddressBook
         {
             foreach (var address in contact.Addresses)
             {
-                Console.WriteLine($"{address.ID}: {address.StreetName}, {address.City}, {address.State} {address.ZipCode}\nType: {address.Type}\n");
+                Console.WriteLine($"{address.ID}: {address.StreetName}, {address.City}, {address.State} {address.ZipCode} / Type: {address.Type}\n");
             }
         }
 
