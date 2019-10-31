@@ -204,7 +204,7 @@ namespace AddressBook
             
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"SELECT ID, FirstName, LastName FROM Contacts WHERE ID = @contactID";
+                command.CommandText = "SELECT ID, FirstName, LastName FROM Contacts WHERE ID = @contactID";
 
                 command.Parameters.AddWithValue("@contactID", ID);
 
@@ -218,11 +218,67 @@ namespace AddressBook
                     }
                 }
 
-                //phoneNumbers
-                //emails
-                //addresses
+                // Phone Numbers
+                command.CommandText = "SELECT ID, Number, [Type] FROM PhoneNumbers WHERE ContactID = @contactID";
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while(reader.Read())
+                    {
+                        var phoneNumber = new PhoneNumber()
+                        {
+                            ID = (int)reader["ID"],
+                            Number = reader["Number"] == DBNull.Value ? "" : (string)reader["Number"],
+                            Type = reader["Type"] == DBNull.Value ? "" : (string)reader["Type"]
+                        };
+                        contact.PhoneNumbers.Add(phoneNumber);
+                    }
+                }
+
+                // Emails
+                command.CommandText = "SELECT ID, [Text], [Type] FROM Emails WHERE ContactID = @contactID";
+
+                using(var reader = command.ExecuteReader())
+                {
+                    while(reader.Read())
+                    {
+                        var email = new Email()
+                        {
+                            ID = (int)reader["ID"],
+                            Text = reader["Text"] == DBNull.Value ? "" : (string)reader["Text"],
+                            Type = reader["Type"] == DBNull.Value ? "" : (string)reader["Type"]
+                        };
+                        contact.Emails.Add(email);
+                    }
+                }
+
+                // Addresses
+                command.CommandText = "SELECT ID, StreetName, City, [State], ZipCode, [Type] FROM Addresses WHERE ContactID = @contactID";
+
+                using(var reader = command.ExecuteReader())
+                {
+                    while(reader.Read())
+                    {
+                        var address = new Address()
+                        {
+                            ID = (int)reader["ID"],
+                            StreetName = reader["StreetName"] == DBNull.Value ? "" : (string)reader["StreetName"],
+                            City = reader["City"] == DBNull.Value ? "" : (string)reader["City"],
+                            State = reader["State"] == DBNull.Value ? "" : (string)reader["State"],
+                            ZipCode = reader["ZipCode"] == DBNull.Value ? "" : (string)reader["ZipCode"],
+                            Type = reader["Type"] == DBNull.Value ? "" : (string)reader["Type"]
+                        };
+                        contact.Addresses.Add(address);
+                    }
+                }
             }
             Connection.Close();
+
+            // If contact doesn't exist return null
+            if (contact.ID == 0)
+            {
+                return null;
+            }
 
             return contact;
         }
