@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace AddressBook
 {
@@ -7,8 +9,14 @@ namespace AddressBook
     {
         static void Main(string[] args)
         {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            IConfigurationRoot configuration = builder.Build();
+
             var collect = new Collect();
-            var sql = new SQL();
+            var sql = new SQL(configuration.GetConnectionString("Storage"));
 
             Menu(collect, sql);
         }
@@ -38,7 +46,7 @@ namespace AddressBook
                         break;
 
                     case "2":
-                        ContactListSelection();
+                        ContactListSelection(sql, collect);
                         break;
                 }
             }
@@ -133,18 +141,15 @@ namespace AddressBook
                         sql.CreateContact(contact);
                         CreateContact(collect, sql);
                         break;
-                        break;
                 }
             }
         }
-        public static void ContactListSelection()
+        public static void ContactListSelection(SQL sql, Collect collect)
         {
             while (true)
             {
                 Console.Clear();
-                var collect = new Collect();
-                var sql = new SQL();
-                sql.DisplayContactsList();
+                DisplayContactsList(sql);
 
                 Console.WriteLine("" +
                     "\n0.=>Back to Menu\n" +
@@ -178,7 +183,7 @@ namespace AddressBook
                 Console.Clear();
                 Console.WriteLine("" + "0.=>Previous menu");
 
-                sql.DisplayContactsList();
+                DisplayContactsList(sql);
 
                 var ID = collect.CollectID("\nEnter the ID of the contact you want to delete");
 
@@ -216,7 +221,7 @@ namespace AddressBook
 
         public static void EditContact(Collect collect, SQL sql)
         {
-            sql.DisplayContactsList();
+            DisplayContactsList(sql);
 
             Console.WriteLine("0. =>Previous menu");
 
@@ -295,7 +300,7 @@ namespace AddressBook
                 Console.WriteLine("delete. delete a phone number");
 
 
-                sql.DisplayPhoneNumbers(contact);
+                DisplayPhoneNumbers(contact);
 
                 Console.WriteLine("Enter the ID of the number you wish you wish to edit");
 
@@ -328,7 +333,7 @@ namespace AddressBook
 
                     case "delete":
                         Console.Clear();
-                        sql.DisplayPhoneNumbers(contact);
+                        DisplayPhoneNumbers(contact);
                         var phoneNumberID = collect.CollectID("Enter the ID of the phone number you want to delete");
                         sql.DeletePhoneNumber(contact.ID, phoneNumberID);
                         contact = sql.GetContact(contact.ID);
@@ -363,7 +368,7 @@ namespace AddressBook
                 Console.WriteLine("delete. delete an email");
 
 
-                sql.DisplayEmails(contact);
+                DisplayEmails(contact);
 
                 Console.Write("Enter the ID of the email you wish you wish to edit:");
 
@@ -394,7 +399,7 @@ namespace AddressBook
 
                     case "delete":
                         Console.Clear();
-                        sql.DisplayEmails(contact);
+                        DisplayEmails(contact);
                         var deleteEmailID = collect.CollectID("Enter the ID of the email you want to delete");
                         sql.DeleteEmail(contact.ID, deleteEmailID);
                         contact = sql.GetContact(contact.ID);
@@ -429,7 +434,7 @@ namespace AddressBook
                 Console.WriteLine("delete. delete an address\n");
 
 
-                sql.DisplayAddresses(contact);
+                DisplayAddresses(contact);
 
                 Console.Write("\nEnter the ID of the address you wish you wish to edit:");
 
@@ -463,7 +468,7 @@ namespace AddressBook
                         break;
 
                     case "delete":
-                        sql.DisplayAddresses(contact);
+                        DisplayAddresses(contact);
                         var id = collect.CollectID("Enter the ID of the address you want to delete");
                         sql.DeleteAddress(contact.ID, id);
                         contact = sql.GetContact(contact.ID);
@@ -543,5 +548,43 @@ namespace AddressBook
                 }
             }
         }
+
+        /// <summary>
+        /// Displays a list of all contacts from the database.
+        /// </summary>
+        public static void DisplayContactsList(SQL sql)
+        {
+            var contacts = sql.GetContacts();
+
+            foreach (var contact in contacts)
+            {
+                Console.WriteLine($"{contact.ID} {contact.FirstName} {contact.LastName}");
+            }
+        }
+
+        public static void DisplayPhoneNumbers(Contact contact)
+        {
+            foreach (var phoneNumber in contact.PhoneNumbers)
+            {
+                Console.WriteLine($"{phoneNumber.ID}:{phoneNumber.Number} / {phoneNumber.Type}");
+            }
+        }
+
+        public static void DisplayEmails(Contact contact)
+        {
+            foreach (var emails in contact.Emails)
+            {
+                Console.WriteLine($"{emails.ID}:{emails.Text} / {emails.Type}");
+            }
+        }
+
+        public static void DisplayAddresses(Contact contact)
+        {
+            foreach (var address in contact.Addresses)
+            {
+                Console.WriteLine($"{address.ID}: {address.StreetName}, {address.City}, {address.State} {address.ZipCode}\nType: {address.Type}\n");
+            }
+        }
+
     }
 }
