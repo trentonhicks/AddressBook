@@ -63,31 +63,8 @@ namespace AddressBook
         //    if(userInput == "0")
         //}
 
-        //Collects string and converts it to an int for phone number.//
-        public string CollectInt(string previousValue)
-        {
-            
-            var field = Console.ReadLine();
-            //Checks if input is 0. if 0 it goes back.//
-            if (field == "0")
-            {
-                return previousValue;
-            }
-            int a;
-            //Converts field to int using TryParse.//
-            bool isNumber = int.TryParse(field, out a); ;
-            //If what the user inputs is an int it retuns a string. Because Everything in SQL is a string.//
-            if (isNumber)
-            {
-                return field;
-            }
-            else
-            {
-                Console.WriteLine("wrong input");
-            }
-            return CollectInt(previousValue);
-        }
-
+        
+        
         //Collects int and only int for ID//
         public int CollectID(string msg)
         {

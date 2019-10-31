@@ -76,7 +76,8 @@ namespace AddressBook
 
                 using (var command = Connection.CreateCommand())
                 {
-                    command.CommandText = $@"SELECT ID, Number, [Type] FROM PhoneNumbers WHERE ContactID = ${contact.ID}";
+                    command.CommandText = $@"SELECT ID, Number, [Type] FROM PhoneNumbers WHERE ContactID = @contactID";
+                    command.Parameters.AddWithValue("@contactID", contact.ID);
                     command.CommandType = CommandType.Text;
 
                     using (var reader = command.ExecuteReader())
@@ -91,7 +92,7 @@ namespace AddressBook
                                 Type = reader["Type"] != DBNull.Value ? (string)reader["Type"] : ""
                             };
 
-                            // Add phone numbers to contact's list
+                            // Add phone numbers to contacts list
                             contact.PhoneNumbers.Add(phoneNumber);
                         }
                     }
@@ -117,7 +118,8 @@ namespace AddressBook
 
                 using (var command = Connection.CreateCommand())
                 {
-                    command.CommandText = $@"SELECT ID, [Text], [Type] FROM Emails WHERE ContactID = ${contact.ID}";
+                    command.CommandText = $@"SELECT ID, [Text], [Type] FROM Emails WHERE ContactID = @contactID";
+                    command.Parameters.AddWithValue("@contactID", contact.ID);
                     command.CommandType = CommandType.Text;
 
                     using (var reader = command.ExecuteReader())
@@ -132,7 +134,7 @@ namespace AddressBook
                                 Type = reader["Type"] != DBNull.Value ? (string)reader["Type"] : ""
                             };
 
-                            // Add emails to contact's list
+                            // Add emails to contacts list
                             contact.Emails.Add(email);
                         }
                     }
@@ -158,7 +160,8 @@ namespace AddressBook
 
                 using (var command = Connection.CreateCommand())
                 {
-                    command.CommandText = $@"SELECT ID, StreetName, City, [State], ZipCode, [Type] FROM Addresses WHERE ContactID = ${contact.ID}";
+                    command.CommandText = $@"SELECT ID, StreetName, City, [State], ZipCode, [Type] FROM Addresses WHERE ContactID = @contactID";
+                    command.Parameters.AddWithValue("@contactID", contact.ID);
                     command.CommandType = CommandType.Text;
 
                     using (var reader = command.ExecuteReader())
@@ -176,7 +179,7 @@ namespace AddressBook
                                 Type = reader["Type"] != DBNull.Value ? (string)reader["Type"] : ""
                             };
 
-                            // Add addresses to the contact's list
+                            // Add addresses to the contacts list
                             contact.Addresses.Add(address);
                         }
                     }
@@ -190,7 +193,7 @@ namespace AddressBook
         }
 
         /// <summary>
-        /// Gets a contact from the database or returns null if contact doesn't exist.
+        /// Gets a contact from the database or returns null if contact doesnt exist.
         /// </summary>
         /// <param name="ID"></param>
         public Contact GetContact(int ID)
@@ -354,8 +357,9 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"UPDATE Contacts SET FirstName = '{firstname}' WHERE ID = {ID}";
-
+                command.CommandText = @"UPDATE Contacts SET FirstName = @firstname WHERE ID = @ID";
+                command.Parameters.AddWithValue("@firstname", firstname);
+                command.Parameters.AddWithValue("@ID", ID);
                 command.ExecuteNonQuery();
 
             }
@@ -370,8 +374,9 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"UPDATE Contacts SET LastName = '{lastname}' WHERE ID = {ID}";
-
+                command.CommandText = $@"UPDATE Contacts SET LastName = @lastname WHERE ID = @ID";
+                command.Parameters.AddWithValue("@lastname", lastname);
+                command.Parameters.AddWithValue("@ID", ID);
                 command.ExecuteNonQuery();
 
             }
@@ -386,7 +391,11 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"UPDATE PhoneNumbers SET Number = '{phoneNumber}', [Type] = '{type}' WHERE ContactID = {FKID} AND ID = {phoneNumberID}";
+                command.CommandText = $@"UPDATE PhoneNumbers SET Number = @phoneNumber, [Type] = @type WHERE ContactID = @FKID AND ID = @phoneNumberID";
+                command.Parameters.AddWithValue("@phoneNumber", phoneNumber);
+                command.Parameters.AddWithValue("@type", type);
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@phoneNumberID", phoneNumberID);
                 command.ExecuteNonQuery();
             }
             Connection.Close();
@@ -398,7 +407,11 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"UPDATE Emails SET Text = '{email}', [Type] = '{type}' WHERE ContactID = {FKID} AND ID = {emailID}";
+                command.CommandText = $@"UPDATE Emails SET Text = @email, [Type] = @type WHERE ContactID = @FKID AND ID = @emailID";
+                command.Parameters.AddWithValue("@email", email);
+                command.Parameters.AddWithValue("@type", type);
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@emailID", emailID);
                 command.ExecuteNonQuery();
             }
             Connection.Close();
@@ -407,13 +420,14 @@ namespace AddressBook
 
         public void UpdateStreetName (int FKID, int streetNameID, string streetName)
         {
-            int ID;
-
             Connection.Open();
 
             using(var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"UPDATE Addresses SET StreetName = '{streetName}' WHERE ContactID = {FKID} AND ID = {streetNameID}";
+                command.CommandText = $@"UPDATE Addresses SET StreetName = @streetName WHERE ContactID = @FKID0 AND ID = @streetNameID";
+                command.Parameters.AddWithValue("@streetName", streetName);
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@streetNameID", streetNameID);
                 command.ExecuteNonQuery();
             }
 
@@ -422,14 +436,14 @@ namespace AddressBook
 
         public void UpdateState(int FKID, int stateID, string state)
         {
-
-            int ID;
-
             Connection.Open();
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"UPDATE Addresses SET StreetName = '{state}' WHERE ContactID = {FKID} AND ID = {stateID}";
+                command.CommandText = $@"UPDATE Addresses SET StreetName = @state WHERE ContactID = @FKID AND ID = @stateID";
+                command.Parameters.AddWithValue("@state", state);
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@stateID", stateID);
                 command.ExecuteNonQuery();
             }
 
@@ -438,13 +452,14 @@ namespace AddressBook
 
         public void UpdateCity(int FKID, int cityID, string city)
         {
-            int ID;
-
             Connection.Open();
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"UPDATE Addresses SET City = '{city}' WHERE ContactID = {FKID} AND ID = {cityID}";
+                command.CommandText = $@"UPDATE Addresses SET City = @city WHERE ContactID = @FKID AND ID = @cityID";
+                command.Parameters.AddWithValue("@city", city);
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@cityID", cityID);
                 command.ExecuteNonQuery();
             }
 
@@ -457,7 +472,10 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"UPDATE Addresses SET ZipCode= '{zipCode}' WHERE ContactID = {FKID} AND ID = {zipCodeID}";
+                command.CommandText = $@"UPDATE Addresses SET ZipCode= @zipCode WHERE ContactID = @FKID AND ID = @zipCodeID";
+                command.Parameters.AddWithValue("@zipCode", zipCode);
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@zipCodeID", zipCodeID);
                 command.ExecuteNonQuery();
             }
 
@@ -470,7 +488,10 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"UPDATE Addresses SET Type= '{addressType}' WHERE ContactID = {FKID} AND ID = {addressTypeID}";
+                command.CommandText = $@"UPDATE Addresses SET Type= @addressType WHERE ContactID = @FKID AND ID = @addressTypeID";
+                command.Parameters.AddWithValue("@addressType", addressType);
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@addressTypeID", addressTypeID);
                 command.ExecuteNonQuery();
             }
 
@@ -488,7 +509,9 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"DELETE FROM PhoneNumbers WHERE ContactID = {FKID} AND ID = {phoneNumberID}";
+                command.CommandText = $@"DELETE FROM PhoneNumbers WHERE ContactID = @FKID AND ID = @phoneNumberID";
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@phoneNumberID", phoneNumberID); ;
                 command.ExecuteNonQuery();
             }
 
@@ -506,7 +529,9 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"DELETE FROM Emails WHERE ContactID = {FKID} AND ID = {emailID}";
+                command.CommandText = $@"DELETE FROM Emails WHERE ContactID = @FKID AND ID = @emailID";
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@emailID", emailID);
                 command.ExecuteNonQuery();
             }
 
@@ -519,7 +544,9 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"DELETE FROM Addresses WHERE ContactID = {FKID} AND ID = {addressID}";
+                command.CommandText = $@"DELETE FROM Addresses WHERE ContactID = @FKID AND ID = @addressID";
+                command.Parameters.AddWithValue("@FKID", FKID);
+                command.Parameters.AddWithValue("@addressID", addressID);
                 command.ExecuteNonQuery();
             }
 
@@ -532,7 +559,8 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"DELETE FROM Contacts WHERE ID = {ID}";
+                command.CommandText = $@"DELETE FROM Contacts WHERE ID = @ID";
+                command.Parameters.AddWithValue("@ID", ID);
                 command.ExecuteNonQuery();
             }
 
@@ -545,13 +573,19 @@ namespace AddressBook
 
             using (var command = Connection.CreateCommand())
             {
-                command.CommandText = $@"DELETE FROM Addresses WHERE ContactID = {ID}";
+                command.CommandText = $@"DELETE FROM Addresses WHERE ContactID = @ID";
+                command.Parameters.AddWithValue("@ID" , ID);
                 command.ExecuteNonQuery();
 
-                command.CommandText = $@"DELETE FROM PhoneNumbers WHERE ContactID = {ID}";
+                command.Parameters.Clear();
+                command.CommandText = $@"DELETE FROM PhoneNumbers WHERE ContactID = @ID";
+                command.Parameters.AddWithValue("@ID", ID);
                 command.ExecuteNonQuery();
 
-                command.CommandText = $@"DELETE FROM Emails WHERE ContactID = {ID}";
+
+                command.Parameters.Clear();
+                command.CommandText = $@"DELETE FROM Emails WHERE ContactID = @ID";
+                command.Parameters.AddWithValue("@ID", ID);
                 command.ExecuteNonQuery();
 
             }
